@@ -1,0 +1,10 @@
+node_modules
+dist
+.nuxt
+.output
+.vite
+pnpm-lock.yaml
+apps/web/data/*.json
+apps/web/data/backups/
+.eslintcache
+TEMP*

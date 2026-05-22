@@ -1,0 +1,75 @@
+<script setup lang="ts">
+interface Props {
+    modelValue: string;
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits<{
+    "update:modelValue": [v: string];
+    save: [];
+}>();
+
+const t = useT();
+type Mode = "edit" | "preview" | "split";
+const mode = ref<Mode>("split");
+
+const local = ref(props.modelValue);
+const dirty = computed(() => local.value !== props.modelValue);
+
+watch(
+    () => props.modelValue,
+    (v) => {
+        local.value = v;
+    },
+);
+
+const update = (v: string) => {
+    local.value = v;
+    emit("update:modelValue", v);
+};
+
+const save = () => emit("save");
+
+const modeOptions = [
+    { value: "edit" as const, label: "Edit", icon: "i-lucide-pencil" },
+    { value: "split" as const, label: "Split", icon: "i-lucide-columns-2" },
+    { value: "preview" as const, label: "Preview", icon: "i-lucide-eye" },
+];
+</script>
+
+<template>
+    <div class="flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-2">
+            <UiSegmented v-model="mode" :options="modeOptions" />
+            <UiButton
+                variant="brand"
+                size="sm"
+                icon="i-lucide-save"
+                :disabled="!dirty"
+                @click="save"
+            >
+                {{ t.common.save }}
+            </UiButton>
+        </div>
+        <div
+            :class="[
+                'grid gap-3',
+                mode === 'split' ? 'lg:grid-cols-2' : 'grid-cols-1',
+            ]"
+        >
+            <UiTextarea
+                v-if="mode !== 'preview'"
+                :model-value="local"
+                :rows="20"
+                monospace
+                @update:model-value="update"
+            />
+            <div
+                v-if="mode !== 'edit'"
+                class="rounded-md border border-jt-line bg-jt-surface p-4"
+            >
+                <UiMarkdown :source="local" />
+            </div>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,36 @@
+{
+    "name": "job-tracker",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "pnpm --filter @job-tracker/shared run build && pnpm --filter @job-tracker/web run dev",
+        "build": "pnpm --filter @job-tracker/shared run build && pnpm --filter @job-tracker/web run build",
+        "build:shared": "pnpm --filter @job-tracker/shared run build",
+        "preview": "pnpm --filter @job-tracker/web run preview",
+        "lint": "pnpm --filter @job-tracker/* run lint",
+        "lint:fix": "pnpm --filter @job-tracker/* run lint:fix",
+        "format": "prettier --check .",
+        "format:fix": "prettier --write .",
+        "types:check": "pnpm --filter @job-tracker/* run types:check",
+        "clean": "pnpm --filter @job-tracker/* exec rm -rf node_modules dist .nuxt .output && rm -rf node_modules"
+    },
+    "engines": {
+        "node": ">=22.0.0",
+        "pnpm": ">=10.0.0"
+    },
+    "packageManager": "pnpm@10.30.3",
+    "devDependencies": {
+        "prettier": "^3.7.4",
+        "prettier-plugin-tailwindcss": "^0.7.2"
+    },
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "@parcel/watcher",
+            "esbuild",
+            "sharp",
+            "unrs-resolver",
+            "vue-demi"
+        ]
+    }
+}

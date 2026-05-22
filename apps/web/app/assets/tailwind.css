@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+/* Semantic tokens — dark mode is the default canvas. */
+:root {
+    --jt-base: #fafafa;
+    --jt-surface: rgba(0, 0, 0, 0.03);
+    --jt-surface-hover: rgba(0, 0, 0, 0.06);
+    --jt-surface-raised: rgba(0, 0, 0, 0.05);
+    --jt-line: rgba(0, 0, 0, 0.12);
+    --jt-line-faint: rgba(0, 0, 0, 0.06);
+    --jt-fg: #0a0a0a;
+    --jt-fg-soft: rgba(0, 0, 0, 0.72);
+    --jt-fg-muted: rgba(0, 0, 0, 0.55);
+    --jt-fg-faint: rgba(0, 0, 0, 0.4);
+
+    --jt-brand: #4338ca;
+    --jt-brand-soft: rgba(67, 56, 202, 0.12);
+    --jt-brand-hover: #3730a3;
+    --jt-brand-text: #ffffff;
+
+    --jt-success: #059669;
+    --jt-success-soft: rgba(5, 150, 105, 0.12);
+    --jt-warning: #d97706;
+    --jt-warning-soft: rgba(217, 119, 6, 0.12);
+    --jt-danger: #dc2626;
+    --jt-danger-soft: rgba(220, 38, 38, 0.12);
+    --jt-info: #0284c7;
+    --jt-info-soft: rgba(2, 132, 199, 0.12);
+
+    color-scheme: light;
+}
+
+.dark {
+    --jt-base: #0a0a0a;
+    --jt-surface: rgba(255, 255, 255, 0.04);
+    --jt-surface-hover: rgba(255, 255, 255, 0.07);
+    --jt-surface-raised: rgba(255, 255, 255, 0.06);
+    --jt-line: rgba(255, 255, 255, 0.08);
+    --jt-line-faint: rgba(255, 255, 255, 0.04);
+    --jt-fg: #fafafa;
+    --jt-fg-soft: rgba(255, 255, 255, 0.72);
+    --jt-fg-muted: rgba(255, 255, 255, 0.55);
+    --jt-fg-faint: rgba(255, 255, 255, 0.38);
+
+    --jt-brand: #818cf8;
+    --jt-brand-soft: rgba(129, 140, 248, 0.16);
+    --jt-brand-hover: #a5b4fc;
+    --jt-brand-text: #0a0a0a;
+
+    --jt-success: #34d399;
+    --jt-success-soft: rgba(52, 211, 153, 0.14);
+    --jt-warning: #fbbf24;
+    --jt-warning-soft: rgba(251, 191, 36, 0.14);
+    --jt-danger: #f87171;
+    --jt-danger-soft: rgba(248, 113, 113, 0.14);
+    --jt-info: #38bdf8;
+    --jt-info-soft: rgba(56, 189, 248, 0.14);
+
+    color-scheme: dark;
+}
+
+@theme inline {
+    --color-jt-base: var(--jt-base);
+    --color-jt-surface: var(--jt-surface);
+    --color-jt-surface-hover: var(--jt-surface-hover);
+    --color-jt-surface-raised: var(--jt-surface-raised);
+    --color-jt-line: var(--jt-line);
+    --color-jt-line-faint: var(--jt-line-faint);
+    --color-jt-fg: var(--jt-fg);
+    --color-jt-fg-soft: var(--jt-fg-soft);
+    --color-jt-fg-muted: var(--jt-fg-muted);
+    --color-jt-fg-faint: var(--jt-fg-faint);
+
+    --color-jt-brand: var(--jt-brand);
+    --color-jt-brand-soft: var(--jt-brand-soft);
+    --color-jt-brand-hover: var(--jt-brand-hover);
+    --color-jt-brand-text: var(--jt-brand-text);
+
+    --color-jt-success: var(--jt-success);
+    --color-jt-success-soft: var(--jt-success-soft);
+    --color-jt-warning: var(--jt-warning);
+    --color-jt-warning-soft: var(--jt-warning-soft);
+    --color-jt-danger: var(--jt-danger);
+    --color-jt-danger-soft: var(--jt-danger-soft);
+    --color-jt-info: var(--jt-info);
+    --color-jt-info-soft: var(--jt-info-soft);
+
+    --font-sans:
+        "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+}
+
+html,
+body,
+#__nuxt {
+    background-color: var(--jt-base);
+    color: var(--jt-fg);
+    min-height: 100vh;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbars — subtle and themed. */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--jt-line) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--jt-line);
+    border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: var(--jt-fg-faint);
+}
+
+/* Focus ring — uses the brand color. */
+:where(button, a, input, textarea, select, [tabindex]):focus-visible {
+    outline: 2px solid var(--jt-brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Common utility shortcuts via @apply-friendly classes. */
+@layer components {
+    .jt-card {
+        background-color: var(--jt-surface);
+        border: 1px solid var(--jt-line);
+        border-radius: 0.75rem;
+    }
+
+    .jt-card-hover {
+        background-color: var(--jt-surface);
+        border: 1px solid var(--jt-line);
+        border-radius: 0.75rem;
+        transition: background-color 150ms ease, border-color 150ms ease;
+    }
+
+    .jt-card-hover:hover {
+        background-color: var(--jt-surface-hover);
+        border-color: var(--jt-line);
+    }
+}

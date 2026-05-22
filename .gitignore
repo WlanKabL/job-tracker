@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+dist
+.nuxt
+.output
+.vite
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor
+.vscode
+.idea
+*.swp
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# User data: JSON store IS committed (private repo backup). Backups are auto-generated duplicates.
+apps/web/data/backups/
+!apps/web/data/.gitkeep
+
+# Caches
+.eslintcache
+*.tsbuildinfo
+.turbo
+
+# Temp
+TEMP*
+tmp
+temp

@@ -1,0 +1,40 @@
+{
+    "name": "@job-tracker/web",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "build": "nuxt build",
+        "dev": "nuxt dev",
+        "generate": "nuxt generate",
+        "preview": "nuxt preview",
+        "postinstall": "nuxt prepare",
+        "lint": "eslint --cache --cache-strategy content .",
+        "lint:fix": "eslint --cache --cache-strategy content --fix .",
+        "format": "prettier --check .",
+        "format:fix": "prettier --write .",
+        "types:check": "nuxt prepare && tsc --noEmit"
+    },
+    "dependencies": {
+        "@iconify-json/lucide": "^1.2.36",
+        "@iconify-json/simple-icons": "^1.2.32",
+        "@job-tracker/shared": "workspace:*",
+        "@nuxt/icon": "^2.1.0",
+        "@pinia/nuxt": "^0.11.3",
+        "@tailwindcss/vite": "^4.1.17",
+        "@vueuse/nuxt": "^14.1.0",
+        "marked": "^17.0.5",
+        "nuxt": "^4.2.1",
+        "pinia": "^3.0.4",
+        "tailwindcss": "^4.1.17",
+        "vue": "^3.5.25",
+        "vue-router": "^4.6.3",
+        "zod": "^3.24.1"
+    },
+    "devDependencies": {
+        "@nuxt/eslint": "^1.11.0",
+        "@types/node": "^24.10.1",
+        "eslint": "^9.39.1",
+        "typescript": "^5.9.3",
+        "vue-tsc": "^3.1.5"
+    }
+}
