@@ -23,17 +23,27 @@ const responseRatePercent = computed(() =>
     stats.value ? Math.round(stats.value.responseRate.ratio * 100) : 0,
 );
 
-const goalProgress = computed(() => {
-    if (!stats.value) return 0;
-    const { thisWeek, target } = stats.value.weeklyGoal;
+const clampedPercent = (value: number, target: number): number => {
     if (target === 0) return 0;
-    return Math.min(100, Math.round((thisWeek / target) * 100));
-});
+    return Math.min(100, Math.round((value / target) * 100));
+};
 
-const goalRemaining = computed(() => {
-    if (!stats.value) return 0;
-    return Math.max(0, stats.value.weeklyGoal.target - stats.value.weeklyGoal.thisWeek);
-});
+const dailyPercent = computed(() =>
+    stats.value ? clampedPercent(stats.value.goal.today, stats.value.goal.dailyTarget) : 0,
+);
+const weeklyPercent = computed(() =>
+    stats.value ? clampedPercent(stats.value.goal.thisWeek, stats.value.goal.weeklyTarget) : 0,
+);
+
+const goalLabel = (value: number, target: number): string => {
+    if (target === 0) return "Kein Ziel gesetzt";
+    if (value >= target) {
+        const over = value - target;
+        return over === 0 ? "Ziel erreicht." : `Ziel erreicht — ${over} über Ziel.`;
+    }
+    const remaining = target - value;
+    return `Noch ${remaining} ${remaining === 1 ? "Bewerbung" : "Bewerbungen"}.`;
+};
 
 const followUpHint = (iso: string) => {
     const days = daysBetween(iso);
@@ -48,11 +58,9 @@ const greeting = computed(() => {
     return "Guten Abend";
 });
 
-const activeApps = computed(() => store.items.filter((a) => !a.archived));
-
 const statusBreakdown = computed(() => {
     if (!stats.value) return [];
-    const total = stats.value.totals.applications || 1;
+    const totalAll = Object.values(stats.value.byStatus).reduce((sum, n) => sum + n, 0) || 1;
     const order: ApplicationStatus[] = [
         "saved",
         "applied",
@@ -67,10 +75,30 @@ const statusBreakdown = computed(() => {
         .map((status) => ({
             status,
             count: stats.value!.byStatus[status],
-            ratio: stats.value!.byStatus[status] / total,
+            ratio: stats.value!.byStatus[status] / totalAll,
             meta: useStatusMeta(status),
         }))
         .filter((row) => row.count > 0);
+});
+
+const heroSubtitle = computed(() => {
+    if (!stats.value) return "";
+    if (stats.value.totals.applications === 0 && stats.value.totals.saved === 0) {
+        return "Noch keine Bewerbungen — bring den ersten Eintrag mit dem JSON-Import auf den Weg.";
+    }
+    const parts: string[] = [];
+    parts.push(
+        `${stats.value.totals.active} aktive Bewerbung${stats.value.totals.active === 1 ? "" : "en"}`,
+    );
+    if (stats.value.totals.saved > 0) {
+        parts.push(
+            `${stats.value.totals.saved} vorgemerkt${stats.value.totals.saved === 1 ? "" : "e"}`,
+        );
+    }
+    parts.push(
+        `${stats.value.upcomingFollowUps.length} Follow-Up${stats.value.upcomingFollowUps.length === 1 ? "" : "s"} in 14 Tagen`,
+    );
+    return parts.join(" · ");
 });
 </script>
 
@@ -93,11 +121,7 @@ const statusBreakdown = computed(() => {
                             {{ t.dashboard.title }}
                         </h1>
                         <p class="mt-2 text-sm text-jt-fg-soft">
-                            {{
-                                stats.totals.applications === 0
-                                    ? "Noch keine Bewerbungen — bring den ersten Eintrag mit dem JSON-Import auf den Weg."
-                                    : `${stats.totals.active} aktive Bewerbung${stats.totals.active === 1 ? "" : "en"} · ${stats.upcomingFollowUps.length} Follow-Up${stats.upcomingFollowUps.length === 1 ? "" : "s"} in den nächsten 14 Tagen.`
-                            }}
+                            {{ heroSubtitle }}
                         </p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
@@ -119,28 +143,36 @@ const statusBreakdown = computed(() => {
                 />
             </section>
 
-            <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div class="grid grid-cols-2 gap-3 lg:grid-cols-5">
                 <DashboardStatCard
-                    :label="t.dashboard.cards.total"
+                    label="Beworben"
                     :value="stats.totals.applications"
-                    icon="i-lucide-briefcase"
+                    icon="i-lucide-send"
                     accent="brand"
+                    hint="Tatsächlich abgeschickt"
                 />
                 <DashboardStatCard
-                    :label="t.dashboard.cards.active"
+                    label="Aktiv im Prozess"
                     :value="stats.totals.active"
                     icon="i-lucide-activity"
                     accent="warning"
+                    hint="Phone / Interview / Offer"
                 />
                 <DashboardStatCard
-                    :label="t.dashboard.cards.companies"
+                    label="Vorgemerkt"
+                    :value="stats.totals.saved"
+                    icon="i-lucide-bookmark"
+                    hint="Noch nicht abgeschickt"
+                />
+                <DashboardStatCard
+                    label="Unternehmen"
                     :value="stats.totals.companies"
                     icon="i-lucide-building-2"
                 />
                 <DashboardStatCard
-                    :label="t.dashboard.cards.responseRate"
+                    label="Response Rate"
                     :value="`${responseRatePercent}%`"
-                    :hint="`${stats.responseRate.responded}/${stats.responseRate.applied} ${t.dashboard.cards.responseRateHint}`"
+                    :hint="`${stats.responseRate.responded}/${stats.responseRate.applied} bekommen Antwort`"
                     icon="i-lucide-message-circle-reply"
                     accent="success"
                 />
@@ -148,37 +180,71 @@ const statusBreakdown = computed(() => {
 
             <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
                 <div class="xl:col-span-2">
-                    <DashboardFunnelChart :applications="activeApps" />
+                    <DashboardFunnelChart :funnel="stats.funnel" />
                 </div>
 
                 <div class="flex flex-col gap-4">
                     <div class="rounded-xl border border-jt-line bg-jt-surface p-5">
                         <header class="mb-3 flex items-center justify-between">
                             <h3 class="text-xs uppercase tracking-wide text-jt-fg-muted">
-                                {{ t.dashboard.cards.weeklyGoal }}
+                                Tagesziel
+                            </h3>
+                            <Icon name="i-lucide-sunrise" class="h-4 w-4 text-jt-warning" />
+                        </header>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-3xl font-semibold text-jt-fg tabular-nums">
+                                {{ stats.goal.today }}
+                            </span>
+                            <span class="text-base text-jt-fg-muted">
+                                / {{ stats.goal.dailyTarget }}
+                            </span>
+                            <span
+                                v-if="stats.goal.today >= stats.goal.dailyTarget"
+                                class="ml-auto rounded-full bg-jt-success-soft px-2 py-0.5 text-[11px] font-medium text-jt-success"
+                            >
+                                ✓
+                            </span>
+                        </div>
+                        <div class="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-jt-surface-raised">
+                            <div
+                                class="h-full rounded-full bg-gradient-to-r from-jt-warning to-jt-brand transition-all"
+                                :style="{ width: `${dailyPercent}%` }"
+                            />
+                        </div>
+                        <p class="mt-2 text-xs text-jt-fg-muted">
+                            {{ goalLabel(stats.goal.today, stats.goal.dailyTarget) }}
+                        </p>
+                    </div>
+
+                    <div class="rounded-xl border border-jt-line bg-jt-surface p-5">
+                        <header class="mb-3 flex items-center justify-between">
+                            <h3 class="text-xs uppercase tracking-wide text-jt-fg-muted">
+                                Wochenziel
                             </h3>
                             <Icon name="i-lucide-target" class="h-4 w-4 text-jt-brand" />
                         </header>
                         <div class="flex items-baseline gap-2">
-                            <span class="text-4xl font-semibold text-jt-fg">
-                                {{ stats.weeklyGoal.thisWeek }}
+                            <span class="text-3xl font-semibold text-jt-fg tabular-nums">
+                                {{ stats.goal.thisWeek }}
                             </span>
                             <span class="text-base text-jt-fg-muted">
-                                / {{ stats.weeklyGoal.target }}
+                                / {{ stats.goal.weeklyTarget }}
+                            </span>
+                            <span
+                                v-if="stats.goal.thisWeek >= stats.goal.weeklyTarget"
+                                class="ml-auto rounded-full bg-jt-success-soft px-2 py-0.5 text-[11px] font-medium text-jt-success"
+                            >
+                                ✓
                             </span>
                         </div>
                         <div class="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-jt-surface-raised">
                             <div
                                 class="h-full rounded-full bg-gradient-to-r from-jt-brand to-jt-info transition-all"
-                                :style="{ width: `${goalProgress}%` }"
+                                :style="{ width: `${weeklyPercent}%` }"
                             />
                         </div>
                         <p class="mt-2 text-xs text-jt-fg-muted">
-                            {{
-                                goalRemaining === 0
-                                    ? "Wochenziel erreicht."
-                                    : `Noch ${goalRemaining} Bewerbung${goalRemaining === 1 ? "" : "en"} für dein Wochenziel.`
-                            }}
+                            {{ goalLabel(stats.goal.thisWeek, stats.goal.weeklyTarget) }}
                         </p>
                     </div>
 
@@ -187,7 +253,9 @@ const statusBreakdown = computed(() => {
                             <h3 class="text-xs uppercase tracking-wide text-jt-fg-muted">
                                 Status-Verteilung
                             </h3>
-                            <span class="text-xs text-jt-fg-muted">{{ stats.totals.applications }}</span>
+                            <span class="text-xs text-jt-fg-muted tabular-nums">
+                                {{ stats.totals.applications + stats.totals.saved }}
+                            </span>
                         </header>
                         <p v-if="statusBreakdown.length === 0" class="text-sm italic text-jt-fg-faint">
                             {{ t.common.empty }}
@@ -202,8 +270,8 @@ const statusBreakdown = computed(() => {
                                 <span class="flex-1 truncate text-sm text-jt-fg-soft">
                                     {{ row.meta.label }}
                                 </span>
-                                <span class="text-sm font-medium text-jt-fg">{{ row.count }}</span>
-                                <span class="w-10 text-right text-xs text-jt-fg-faint">
+                                <span class="text-sm font-medium text-jt-fg tabular-nums">{{ row.count }}</span>
+                                <span class="w-10 text-right text-xs text-jt-fg-faint tabular-nums">
                                     {{ Math.round(row.ratio * 100) }}%
                                 </span>
                             </li>

@@ -46,10 +46,20 @@ const followUpDays = computed({
     set: (v: number) => updateSetting("followUpDays", v),
 });
 
+const dailyGoal = computed({
+    get: () => settings.value?.dailyGoal ?? 15,
+    set: (v: number) => updateSetting("dailyGoal", v),
+});
+
 const weeklyGoal = computed({
-    get: () => settings.value?.weeklyGoal ?? 15,
+    get: () => settings.value?.weeklyGoal ?? 105,
     set: (v: number) => updateSetting("weeklyGoal", v),
 });
+
+const setWeeklyToDailyTimesSeven = () => {
+    if (!settings.value) return;
+    updateSetting("weeklyGoal", dailyGoal.value * 7);
+};
 
 const downloadExport = async () => {
     try {
@@ -141,7 +151,7 @@ const onImportFile = async (event: Event) => {
                 <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-jt-fg-muted">
                     {{ t.settings.sections.workflow }}
                 </h2>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <UiTextInput
                         :model-value="followUpDays"
                         :label="t.settings.followUpDays"
@@ -151,13 +161,30 @@ const onImportFile = async (event: Event) => {
                         @update:model-value="(v) => (followUpDays = Number(v))"
                     />
                     <UiTextInput
+                        :model-value="dailyGoal"
+                        label="Tagesziel (Bewerbungen pro Tag)"
+                        type="number"
+                        min="0"
+                        max="50"
+                        @update:model-value="(v) => (dailyGoal = Number(v))"
+                    />
+                    <UiTextInput
                         :model-value="weeklyGoal"
                         :label="t.settings.weeklyGoal"
                         type="number"
                         min="0"
-                        max="200"
+                        max="500"
                         @update:model-value="(v) => (weeklyGoal = Number(v))"
                     />
+                </div>
+                <div class="mt-3 flex items-center justify-end">
+                    <button
+                        type="button"
+                        class="text-xs text-jt-brand hover:underline"
+                        @click="setWeeklyToDailyTimesSeven"
+                    >
+                        Wochenziel = Tagesziel × 7 ({{ dailyGoal * 7 }}) setzen
+                    </button>
                 </div>
             </UiCard>
 

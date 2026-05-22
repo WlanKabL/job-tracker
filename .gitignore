@@ -39,3 +39,10 @@ apps/web/data/backups/
 TEMP*
 tmp
 temp
+
+# Playwright + screenshots from dev checks
+.playwright-mcp/
+/*.png
+/*.jpeg
+/*.jpg
+/*.webp

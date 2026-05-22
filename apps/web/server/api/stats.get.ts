@@ -2,6 +2,10 @@ import type {
     Application,
     ApplicationSource,
     ApplicationStatus,
+    FunnelData,
+    FunnelStageData,
+    FunnelStageKey,
+    GoalProgress,
     SourceCount,
     StatsResponse,
     StatusCount,
@@ -11,13 +15,23 @@ import {
     APPLICATION_SOURCE,
     APPLICATION_STATUS,
     CLOSED_STATUSES,
-    RESPONSIVE_STATUSES,
+    FUNNEL_STAGE_ORDER,
 } from "@job-tracker/shared";
 import { applicationsRepo } from "../repositories/applications-repo";
 import { companiesRepo } from "../repositories/companies-repo";
 import { settingsRepo } from "../repositories/settings-repo";
 
 const WEEKS_TO_SHOW = 8;
+const CLOSED_KEYS = ["rejected", "withdrawn", "ghosted"] as const;
+type ClosedKey = (typeof CLOSED_KEYS)[number];
+
+/** Responses where the company actually answered (rejected = answer, ghosted = no answer). */
+const RESPONDED_STATUSES: ReadonlySet<ApplicationStatus> = new Set<ApplicationStatus>([
+    "phone",
+    "interview",
+    "offer",
+    "rejected",
+]);
 
 export default defineEventHandler(async (): Promise<StatsResponse> => {
     const [apps, companies, settings] = await Promise.all([
@@ -28,24 +42,28 @@ export default defineEventHandler(async (): Promise<StatsResponse> => {
 
     const byStatus = countByStatus(apps);
     const bySource = countBySource(apps);
-    const active = apps.filter((a) => ACTIVE_STATUSES.has(a.status)).length;
-    const closed = apps.filter((a) => CLOSED_STATUSES.has(a.status)).length;
 
-    const applied = apps.filter((a) => a.status !== "saved").length;
-    const responded = apps.filter((a) => RESPONSIVE_STATUSES.has(a.status)).length;
+    const savedCount = apps.filter((a) => a.status === "saved").length;
+    const active = apps.filter((a) => ACTIVE_STATUSES.has(a.status) && a.status !== "saved").length;
+    const closed = apps.filter((a) => CLOSED_STATUSES.has(a.status)).length;
+    const appliedTotal = apps.length - savedCount;
+
+    const responded = apps.filter((a) => RESPONDED_STATUSES.has(a.status)).length;
     const responseRate = {
-        applied,
+        applied: appliedTotal,
         responded,
-        ratio: applied > 0 ? Number((responded / applied).toFixed(3)) : 0,
+        ratio: appliedTotal > 0 ? Number((responded / appliedTotal).toFixed(3)) : 0,
     };
 
     const weekly = computeWeekly(apps);
-    const weeklyGoal = computeWeeklyGoal(apps, settings.weeklyGoal);
+    const goal = computeGoal(apps, settings.dailyGoal, settings.weeklyGoal);
+    const funnel = computeFunnel(apps);
     const upcomingFollowUps = await computeFollowUps(apps);
 
     return {
         totals: {
-            applications: apps.length,
+            applications: appliedTotal,
+            saved: savedCount,
             active,
             closed,
             companies: companies.length,
@@ -54,7 +72,8 @@ export default defineEventHandler(async (): Promise<StatsResponse> => {
         bySource,
         weekly,
         responseRate,
-        weeklyGoal,
+        goal,
+        funnel,
         upcomingFollowUps,
     };
 });
@@ -83,24 +102,24 @@ const countBySource = (apps: Application[]): SourceCount => {
     return out;
 };
 
-const startOfWeek = (date: Date): Date => {
+const startOfDay = (date: Date): Date => {
     const d = new Date(date);
     d.setHours(0, 0, 0, 0);
+    return d;
+};
+
+const startOfWeek = (date: Date): Date => {
+    const d = startOfDay(date);
     const day = d.getDay();
     const diff = (day + 6) % 7;
     d.setDate(d.getDate() - diff);
     return d;
 };
 
-const isoWeekKey = (date: Date): string => {
-    const monday = startOfWeek(date);
-    return monday.toISOString().slice(0, 10);
-};
+const isoWeekKey = (date: Date): string => startOfWeek(date).toISOString().slice(0, 10);
 
-const weekLabel = (date: Date): string => {
-    const monday = startOfWeek(date);
-    return monday.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
-};
+const weekLabel = (date: Date): string =>
+    startOfWeek(date).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
 
 const computeWeekly = (apps: Application[]): StatsResponse["weekly"] => {
     const weeks: StatsResponse["weekly"] = [];
@@ -130,20 +149,69 @@ const computeWeekly = (apps: Application[]): StatsResponse["weekly"] => {
     return weeks;
 };
 
-const computeWeeklyGoal = (
-    apps: Application[],
-    target: number,
-): StatsResponse["weeklyGoal"] => {
-    const monday = startOfWeek(new Date()).getTime();
+const computeGoal = (apps: Application[], dailyTarget: number, weeklyTarget: number): GoalProgress => {
+    const todayStart = startOfDay(new Date()).getTime();
+    const weekStart = startOfWeek(new Date()).getTime();
+    let today = 0;
     let thisWeek = 0;
     for (const app of apps) {
         for (const entry of app.timeline) {
             if (entry.type !== "status_change") continue;
             if (entry.toStatus !== "applied") continue;
-            if (new Date(entry.occurredAt).getTime() >= monday) thisWeek++;
+            const ts = new Date(entry.occurredAt).getTime();
+            if (ts >= todayStart) today++;
+            if (ts >= weekStart) thisWeek++;
         }
     }
-    return { target, thisWeek };
+    return { dailyTarget, weeklyTarget, today, thisWeek };
+};
+
+const maxReachedStageIndex = (app: Application): number => {
+    let max = -1;
+    const currentIdx = (FUNNEL_STAGE_ORDER as readonly string[]).indexOf(app.status);
+    if (currentIdx !== -1) max = currentIdx;
+    for (const entry of app.timeline) {
+        if (entry.type !== "status_change" || !entry.toStatus) continue;
+        const ti = (FUNNEL_STAGE_ORDER as readonly string[]).indexOf(entry.toStatus);
+        if (ti > max) max = ti;
+    }
+    return max;
+};
+
+const emptyDropped = () => ({ rejected: 0, withdrawn: 0, ghosted: 0, total: 0 });
+
+const computeFunnel = (apps: Application[]): FunnelData => {
+    const stages: FunnelStageData[] = FUNNEL_STAGE_ORDER.map((key) => ({
+        key,
+        reached: 0,
+        active: 0,
+        continued: 0,
+        dropped: emptyDropped(),
+    }));
+
+    for (const app of apps) {
+        const maxIdx = maxReachedStageIndex(app);
+        if (maxIdx < 0) continue;
+        for (let i = 0; i <= maxIdx; i++) {
+            stages[i]!.reached++;
+        }
+        const isClosed = CLOSED_STATUSES.has(app.status);
+        const stage = stages[maxIdx]!;
+        if (isClosed) {
+            const key = app.status as ClosedKey;
+            stage.dropped[key]++;
+            stage.dropped.total++;
+        } else {
+            stage.active++;
+        }
+    }
+
+    // continued = reached of next stage
+    for (let i = 0; i < stages.length; i++) {
+        stages[i]!.continued = i < stages.length - 1 ? stages[i + 1]!.reached : 0;
+    }
+
+    return { stages };
 };
 
 const computeFollowUps = async (
@@ -166,3 +234,6 @@ const computeFollowUps = async (
         .sort((a, b) => a.followUpAt.localeCompare(b.followUpAt))
         .slice(0, 10);
 };
+
+// silence unused-import warning for FunnelStageKey (used only in type assertions in the future)
+void undefined as unknown as FunnelStageKey | undefined;

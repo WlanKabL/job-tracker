@@ -19,6 +19,10 @@ const set = (n: number) => {
     }
     emit("update:modelValue", n);
 };
+
+/** Inline SVG so the fill="currentColor" trick works — Iconify mask-rendered icons ignore fill. */
+const STAR_PATH =
+    "M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z";
 </script>
 
 <template>
@@ -31,15 +35,19 @@ const set = (n: number) => {
             :class="['p-0.5 transition', readonly ? 'cursor-default' : 'hover:scale-110']"
             @click="set(n)"
         >
-            <Icon
-                :name="(modelValue ?? 0) >= n ? 'i-lucide-star' : 'i-lucide-star'"
+            <svg
                 :class="[
                     sizeClass,
-                    (modelValue ?? 0) >= n
-                        ? 'fill-jt-warning text-jt-warning'
-                        : 'text-jt-fg-faint',
+                    (modelValue ?? 0) >= n ? 'text-jt-warning' : 'text-jt-fg-faint/40',
                 ]"
-            />
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                :stroke="(modelValue ?? 0) >= n ? 'none' : 'currentColor'"
+                stroke-width="1.5"
+                aria-hidden="true"
+            >
+                <path :d="STAR_PATH" :fill-opacity="(modelValue ?? 0) >= n ? 1 : 0.15" />
+            </svg>
         </button>
     </div>
 </template>
