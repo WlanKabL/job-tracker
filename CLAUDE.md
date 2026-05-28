@@ -33,7 +33,7 @@ The core loop:
 - Postings from LinkedIn, company websites, initiative ("Initiativ"), Indeed, StepStone, Xing, Other.
 - Same company, different roles, different recruiters.
 
-**Audience:** WlanKabL only. No auth, no multi-user, no public deployment.
+**Audience:** Single-user, local-first. No auth, no multi-user, no remote deployment — runs on the user's machine only.
 
 ---
 

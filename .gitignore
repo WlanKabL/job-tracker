@@ -26,7 +26,8 @@ Thumbs.db
 .env.*.local
 !.env.example
 
-# User data: JSON store IS committed (private repo backup). Backups are auto-generated duplicates.
+# User data: never committed. Stores bootstrap with empty defaults on first run.
+apps/web/data/*.json
 apps/web/data/backups/
 !apps/web/data/.gitkeep
 
