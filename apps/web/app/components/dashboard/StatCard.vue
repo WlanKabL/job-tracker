@@ -18,7 +18,7 @@ const accentBg: Record<NonNullable<Props["accent"]>, string> = {
 };
 
 const accentBorder: Record<NonNullable<Props["accent"]>, string> = {
-    default: "",
+    default: "before:bg-jt-line",
     brand: "before:bg-jt-brand",
     success: "before:bg-jt-success",
     warning: "before:bg-jt-warning",
@@ -29,25 +29,30 @@ const accentBorder: Record<NonNullable<Props["accent"]>, string> = {
 <template>
     <div
         :class="[
-            'relative overflow-hidden rounded-xl border border-jt-line bg-jt-surface p-4 transition hover:bg-jt-surface-hover',
-            'before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:rounded-l-xl',
+            'group relative overflow-hidden rounded-2xl border border-jt-line bg-jt-surface px-5 py-4',
+            'transition-all duration-200 hover:-translate-y-0.5 hover:bg-jt-surface-hover hover:border-jt-line',
+            'before:absolute before:left-0 before:top-3 before:bottom-3 before:w-[2px] before:rounded-full before:transition-all before:duration-200',
+            'group-hover:before:top-2 group-hover:before:bottom-2',
             accentBorder[accent],
         ]"
     >
         <div class="flex items-start justify-between gap-3">
-            <span class="text-[11px] font-medium uppercase tracking-wider text-jt-fg-muted">
+            <span class="text-[10px] font-medium uppercase tracking-[0.14em] text-jt-fg-muted">
                 {{ label }}
             </span>
             <div
                 v-if="icon"
-                :class="['flex h-8 w-8 items-center justify-center rounded-lg', accentBg[accent]]"
+                :class="[
+                    'flex h-7 w-7 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110',
+                    accentBg[accent],
+                ]"
             >
-                <Icon :name="icon" class="h-4 w-4" />
+                <Icon :name="icon" class="h-3.5 w-3.5" />
             </div>
         </div>
-        <div class="mt-2 text-2xl font-semibold leading-tight text-jt-fg sm:text-3xl">
+        <div class="font-display-tight tabular mt-2 text-4xl leading-none text-jt-fg sm:text-[2.6rem]">
             {{ value }}
         </div>
-        <p v-if="hint" class="mt-1 text-xs text-jt-fg-muted">{{ hint }}</p>
+        <p v-if="hint" class="mt-2 text-xs text-jt-fg-muted leading-snug">{{ hint }}</p>
     </div>
 </template>

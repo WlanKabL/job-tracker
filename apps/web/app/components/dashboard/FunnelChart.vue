@@ -108,20 +108,21 @@ const isEmpty = computed(() => totalReached.value <= 1 && STAGES.value[0]?.reach
 </script>
 
 <template>
-    <section class="rounded-xl border border-jt-line bg-jt-surface p-5">
+    <section class="rounded-2xl border border-jt-line bg-jt-surface p-5">
         <header class="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
-                <h3 class="text-sm font-semibold text-jt-fg">Funnel</h3>
-                <p class="text-xs text-jt-fg-muted">
-                    Wohin fließen deine Bewerbungen — pro Stufe Aktiv vs. Drop-Off.
+                <p class="text-[10px] font-medium uppercase tracking-[0.18em] text-jt-fg-muted">
+                    Funnel
+                </p>
+                <h3 class="font-display mt-1 text-xl text-jt-fg">Wohin fließen Bewerbungen</h3>
+                <p class="mt-0.5 text-xs text-jt-fg-muted">
+                    Pro Stufe Aktiv vs. Drop-Off mit Abgesagt / Zurückgezogen / Geghostet.
                 </p>
             </div>
             <div v-if="!isEmpty" class="text-right">
-                <div class="text-2xl font-semibold text-jt-fg tabular-nums">
-                    {{ totalConversion }}%
-                </div>
-                <div class="text-[11px] uppercase tracking-wide text-jt-fg-muted">
-                    {{ STAGES[0]?.reached }} Beworben → {{ STAGES[STAGES.length - 1]?.reached }} Angebot
+                <div class="font-display-tight tabular text-3xl text-jt-fg">{{ totalConversion }}%</div>
+                <div class="text-[10px] uppercase tracking-[0.14em] text-jt-fg-muted">
+                    {{ STAGES[0]?.reached }} → {{ STAGES[STAGES.length - 1]?.reached }} Angebot
                 </div>
             </div>
         </header>
@@ -228,16 +229,16 @@ const isEmpty = computed(() => totalReached.value <= 1 && STAGES.value[0]?.reach
                             :y="TOP_PAD - 22"
                             text-anchor="middle"
                             class="fill-jt-fg-muted"
-                            style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em"
+                            style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 500"
                         >
                             {{ g.label }}
                         </text>
                         <text
                             :x="g.x + BLOCK_WIDTH / 2"
-                            :y="TOP_PAD - 6"
+                            :y="TOP_PAD - 4"
                             text-anchor="middle"
                             class="fill-jt-fg"
-                            style="font-size: 20px; font-weight: 600"
+                            style="font-family: 'Fraunces', serif; font-size: 26px; font-weight: 500; letter-spacing: -0.02em; font-variation-settings: 'opsz' 144;"
                         >
                             {{ g.data.reached }}
                         </text>
@@ -249,7 +250,7 @@ const isEmpty = computed(() => totalReached.value <= 1 && STAGES.value[0]?.reach
                             :y="TOP_PAD + CHART_HEIGHT + 22"
                             text-anchor="middle"
                             class="fill-jt-fg-soft"
-                            style="font-size: 12px; font-weight: 600"
+                            style="font-size: 11px; font-weight: 600; font-feature-settings: 'tnum'"
                         >
                             {{ conversionRate(i) }}%
                         </text>

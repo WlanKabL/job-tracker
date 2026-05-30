@@ -28,7 +28,15 @@ export default defineNuxtConfig({
                 { name: "viewport", content: "width=device-width, initial-scale=1" },
                 { name: "theme-color", content: "#0a0a0a" },
             ],
-            link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+            link: [
+                { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+                { rel: "preconnect", href: "https://fonts.googleapis.com" },
+                { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
+                {
+                    rel: "stylesheet",
+                    href: "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@100..900&family=JetBrains+Mono:wght@400;500;600&display=swap",
+                },
+            ],
             script: [
                 {
                     innerHTML: `(function(){try{var v=localStorage.getItem('jt_theme');if(v){v=JSON.parse(v);}if(v==='light'){document.documentElement.classList.remove('dark');}else{document.documentElement.classList.add('dark');}}catch(e){document.documentElement.classList.add('dark');}})();`,

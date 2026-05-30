@@ -53,21 +53,27 @@ defineEmits<{ navigate: [] }>();
 </script>
 
 <template>
-    <nav class="flex h-full flex-col gap-1 p-3">
-        <div class="mb-2 px-2 py-2">
-            <NuxtLink
-                to="/"
-                class="flex items-center gap-2.5 text-base font-semibold text-jt-fg"
-                @click="$emit('navigate')"
+    <nav class="flex h-full flex-col gap-1 px-3 pb-3 pt-4">
+        <NuxtLink
+            to="/"
+            class="group mb-4 flex items-center gap-3 px-2 py-1"
+            @click="$emit('navigate')"
+        >
+            <div
+                class="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-jt-brand bg-[image:var(--jt-brand-gradient)] text-jt-brand-text shadow-[0_4px_18px_-4px_rgba(155,137,255,0.5)]"
             >
-                <div
-                    class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-jt-brand to-jt-info text-white shadow-md"
-                >
-                    <Icon name="i-lucide-briefcase" class="h-4 w-4" />
-                </div>
-                <span class="tracking-tight">{{ t.app.name }}</span>
-            </NuxtLink>
-        </div>
+                <Icon name="i-lucide-briefcase" class="relative z-10 h-4 w-4" />
+                <span class="absolute inset-0 bg-white/10 mix-blend-overlay"></span>
+            </div>
+            <div class="flex flex-col leading-none">
+                <span class="font-display tracking-tight text-[15px] font-medium text-jt-fg">
+                    Job Tracker
+                </span>
+                <span class="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-jt-fg-faint">
+                    Operator
+                </span>
+            </div>
+        </NuxtLink>
 
         <div class="flex flex-col gap-0.5">
             <NuxtLink
@@ -75,21 +81,25 @@ defineEmits<{ navigate: [] }>();
                 :key="item.to"
                 :to="item.to"
                 :class="[
-                    'group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition',
+                    'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all',
                     item.match(route.path)
                         ? 'bg-jt-brand-soft text-jt-brand font-medium'
                         : 'text-jt-fg-soft hover:bg-jt-surface-hover hover:text-jt-fg',
                 ]"
                 @click="$emit('navigate')"
             >
+                <span
+                    v-if="item.match(route.path)"
+                    class="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-r-full bg-jt-brand"
+                ></span>
                 <Icon :name="item.icon" class="h-4 w-4 shrink-0" />
                 <span class="flex-1">{{ item.label }}</span>
                 <span
                     v-if="typeof item.count === 'number' && item.count > 0"
                     :class="[
-                        'rounded-full px-1.5 py-0.5 text-[10px] font-medium tabular-nums',
+                        'tabular rounded-md px-1.5 py-0.5 text-[10px] font-medium',
                         item.match(route.path)
-                            ? 'bg-jt-brand text-white'
+                            ? 'bg-jt-brand/15 text-jt-brand'
                             : 'bg-jt-surface-raised text-jt-fg-muted group-hover:bg-jt-surface',
                     ]"
                 >
@@ -98,7 +108,7 @@ defineEmits<{ navigate: [] }>();
             </NuxtLink>
         </div>
 
-        <div class="mt-auto px-1 pt-3 pb-1">
+        <div class="mt-auto px-1 pt-4 pb-1">
             <UiButton
                 variant="brand"
                 icon="i-lucide-plus"

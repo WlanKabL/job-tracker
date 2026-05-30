@@ -117,18 +117,22 @@ const onImportFile = async (event: Event) => {
 
 <template>
     <div class="mx-auto max-w-3xl">
-        <LayoutPageHeader :title="t.settings.title" />
+        <LayoutPageHeader
+            eyebrow="Konfiguration"
+            :title="t.settings.title"
+            subtitle="Theme, Workflow-Defaults und Daten-Management."
+        />
 
         <div v-if="!settings" class="flex justify-center py-10">
             <UiSpinner :label="t.common.loading" />
         </div>
-        <div v-else class="flex flex-col gap-5">
-            <UiCard>
-                <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-jt-fg-muted">
+        <div v-else class="flex flex-col gap-4">
+            <section class="jt-enter jt-enter-d100 rounded-2xl border border-jt-line bg-jt-surface p-5">
+                <h2 class="mb-4 text-[10px] font-medium uppercase tracking-[0.18em] text-jt-fg-muted">
                     {{ t.settings.sections.display }}
                 </h2>
-                <div class="flex flex-col gap-4">
-                    <div class="flex items-center justify-between gap-4">
+                <div class="flex flex-col divide-y divide-jt-line-faint">
+                    <div class="flex items-center justify-between gap-4 py-3 first:pt-0">
                         <span class="text-sm text-jt-fg">{{ t.settings.theme }}</span>
                         <UiSegmented
                             :model-value="settings.theme"
@@ -136,7 +140,7 @@ const onImportFile = async (event: Event) => {
                             @update:model-value="updateSetting('theme', $event)"
                         />
                     </div>
-                    <div class="flex items-center justify-between gap-4">
+                    <div class="flex items-center justify-between gap-4 py-3 last:pb-0">
                         <span class="text-sm text-jt-fg">{{ t.settings.defaultView }}</span>
                         <UiSegmented
                             :model-value="settings.defaultView"
@@ -145,10 +149,10 @@ const onImportFile = async (event: Event) => {
                         />
                     </div>
                 </div>
-            </UiCard>
+            </section>
 
-            <UiCard>
-                <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-jt-fg-muted">
+            <section class="jt-enter jt-enter-d200 rounded-2xl border border-jt-line bg-jt-surface p-5">
+                <h2 class="mb-4 text-[10px] font-medium uppercase tracking-[0.18em] text-jt-fg-muted">
                     {{ t.settings.sections.workflow }}
                 </h2>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -180,16 +184,17 @@ const onImportFile = async (event: Event) => {
                 <div class="mt-3 flex items-center justify-end">
                     <button
                         type="button"
-                        class="text-xs text-jt-brand hover:underline"
+                        class="inline-flex items-center gap-1 text-xs text-jt-brand hover:underline"
                         @click="setWeeklyToDailyTimesSeven"
                     >
+                        <Icon name="i-lucide-zap" class="h-3 w-3" />
                         Wochenziel = Tagesziel × 7 ({{ dailyGoal * 7 }}) setzen
                     </button>
                 </div>
-            </UiCard>
+            </section>
 
-            <UiCard>
-                <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-jt-fg-muted">
+            <section class="jt-enter jt-enter-d300 rounded-2xl border border-jt-line bg-jt-surface p-5">
+                <h2 class="mb-4 text-[10px] font-medium uppercase tracking-[0.18em] text-jt-fg-muted">
                     {{ t.settings.sections.data }}
                 </h2>
                 <div class="flex flex-col gap-5">
@@ -232,7 +237,7 @@ const onImportFile = async (event: Event) => {
                             <li
                                 v-for="date in backups"
                                 :key="date"
-                                class="rounded-md border border-jt-line bg-jt-surface px-2 py-1 font-mono text-xs text-jt-fg-soft"
+                                class="tabular rounded-md border border-jt-line bg-jt-base px-2 py-1 font-mono text-[11px] text-jt-fg-soft"
                             >
                                 {{ date }}
                             </li>
@@ -242,7 +247,7 @@ const onImportFile = async (event: Event) => {
                         </p>
                     </div>
                 </div>
-            </UiCard>
+            </section>
         </div>
     </div>
 </template>

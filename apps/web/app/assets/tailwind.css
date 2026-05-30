@@ -2,61 +2,75 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+/* ============================================================================
+   Job Tracker — "Editorial Operator" aesthetic
+   Refined typography (Fraunces display + Geist UI + JetBrains Mono),
+   sophisticated color palette, hairline borders, restrained motion.
+   ============================================================================ */
+
 /* Semantic tokens — dark mode is the default canvas. */
 :root {
-    --jt-base: #fafafa;
-    --jt-surface: rgba(0, 0, 0, 0.03);
-    --jt-surface-hover: rgba(0, 0, 0, 0.06);
-    --jt-surface-raised: rgba(0, 0, 0, 0.05);
-    --jt-line: rgba(0, 0, 0, 0.12);
-    --jt-line-faint: rgba(0, 0, 0, 0.06);
-    --jt-fg: #0a0a0a;
-    --jt-fg-soft: rgba(0, 0, 0, 0.72);
-    --jt-fg-muted: rgba(0, 0, 0, 0.55);
-    --jt-fg-faint: rgba(0, 0, 0, 0.4);
+    /* Surface stack — true neutrals, optical depth via opacity */
+    --jt-base: #fafaf9;
+    --jt-surface: rgba(15, 15, 18, 0.025);
+    --jt-surface-hover: rgba(15, 15, 18, 0.05);
+    --jt-surface-raised: rgba(15, 15, 18, 0.04);
+    --jt-line: rgba(15, 15, 18, 0.1);
+    --jt-line-faint: rgba(15, 15, 18, 0.05);
+    --jt-fg: #0c0c0e;
+    --jt-fg-soft: rgba(12, 12, 14, 0.72);
+    --jt-fg-muted: rgba(12, 12, 14, 0.55);
+    --jt-fg-faint: rgba(12, 12, 14, 0.38);
 
-    --jt-brand: #4338ca;
-    --jt-brand-soft: rgba(67, 56, 202, 0.12);
-    --jt-brand-hover: #3730a3;
+    /* Brand — rich violet, less generic than indigo */
+    --jt-brand: #5b4cf0;
+    --jt-brand-soft: rgba(91, 76, 240, 0.1);
+    --jt-brand-hover: #4a3bd9;
     --jt-brand-text: #ffffff;
+    --jt-brand-gradient: linear-gradient(135deg, #5b4cf0 0%, #4f7bf5 100%);
 
-    --jt-success: #059669;
-    --jt-success-soft: rgba(5, 150, 105, 0.12);
-    --jt-warning: #d97706;
-    --jt-warning-soft: rgba(217, 119, 6, 0.12);
-    --jt-danger: #dc2626;
-    --jt-danger-soft: rgba(220, 38, 38, 0.12);
-    --jt-info: #0284c7;
-    --jt-info-soft: rgba(2, 132, 199, 0.12);
+    /* Signal colors — warmer + slightly desaturated */
+    --jt-success: #0d9762;
+    --jt-success-soft: rgba(13, 151, 98, 0.1);
+    --jt-warning: #d97a32;
+    --jt-warning-soft: rgba(217, 122, 50, 0.1);
+    --jt-danger: #e0413f;
+    --jt-danger-soft: rgba(224, 65, 63, 0.1);
+    --jt-info: #2a8fc4;
+    --jt-info-soft: rgba(42, 143, 196, 0.1);
 
     color-scheme: light;
 }
 
 .dark {
-    --jt-base: #0a0a0a;
-    --jt-surface: rgba(255, 255, 255, 0.04);
-    --jt-surface-hover: rgba(255, 255, 255, 0.07);
-    --jt-surface-raised: rgba(255, 255, 255, 0.06);
-    --jt-line: rgba(255, 255, 255, 0.08);
+    /* Cool-tinged near-black: warmer than pure black, less common than #0a0a0a */
+    --jt-base: #0b0b0e;
+    --jt-surface: rgba(255, 255, 255, 0.035);
+    --jt-surface-hover: rgba(255, 255, 255, 0.065);
+    --jt-surface-raised: rgba(255, 255, 255, 0.05);
+    --jt-line: rgba(255, 255, 255, 0.075);
     --jt-line-faint: rgba(255, 255, 255, 0.04);
-    --jt-fg: #fafafa;
-    --jt-fg-soft: rgba(255, 255, 255, 0.72);
-    --jt-fg-muted: rgba(255, 255, 255, 0.55);
-    --jt-fg-faint: rgba(255, 255, 255, 0.38);
+    --jt-fg: #f5f5f4;
+    --jt-fg-soft: rgba(245, 245, 244, 0.74);
+    --jt-fg-muted: rgba(245, 245, 244, 0.54);
+    --jt-fg-faint: rgba(245, 245, 244, 0.36);
 
-    --jt-brand: #818cf8;
-    --jt-brand-soft: rgba(129, 140, 248, 0.16);
-    --jt-brand-hover: #a5b4fc;
-    --jt-brand-text: #0a0a0a;
+    /* Brand in dark: light violet that radiates without being harsh */
+    --jt-brand: #9a89ff;
+    --jt-brand-soft: rgba(154, 137, 255, 0.14);
+    --jt-brand-hover: #b4a5ff;
+    --jt-brand-text: #0b0b0e;
+    --jt-brand-gradient: linear-gradient(135deg, #9a89ff 0%, #6da5ff 100%);
 
-    --jt-success: #34d399;
-    --jt-success-soft: rgba(52, 211, 153, 0.14);
-    --jt-warning: #fbbf24;
-    --jt-warning-soft: rgba(251, 191, 36, 0.14);
-    --jt-danger: #f87171;
-    --jt-danger-soft: rgba(248, 113, 113, 0.14);
-    --jt-info: #38bdf8;
-    --jt-info-soft: rgba(56, 189, 248, 0.14);
+    /* Signal colors — vivid enough to read on dark, never neon */
+    --jt-success: #4ecf95;
+    --jt-success-soft: rgba(78, 207, 149, 0.13);
+    --jt-warning: #f4b066;
+    --jt-warning-soft: rgba(244, 176, 102, 0.14);
+    --jt-danger: #ff7672;
+    --jt-danger-soft: rgba(255, 118, 114, 0.13);
+    --jt-info: #6cc8f0;
+    --jt-info-soft: rgba(108, 200, 240, 0.13);
 
     color-scheme: dark;
 }
@@ -87,9 +101,12 @@
     --color-jt-info: var(--jt-info);
     --color-jt-info-soft: var(--jt-info-soft);
 
+    /* Typography — Editorial display serif + precise UI sans + tabular mono */
     --font-sans:
-        "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Geist", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
+    --font-display:
+        "Fraunces", "Geist", ui-serif, Georgia, serif;
     --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
 }
 
@@ -100,8 +117,74 @@ body,
     color: var(--jt-fg);
     min-height: 100vh;
     font-family: var(--font-sans);
+    font-feature-settings: "ss01", "ss03", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Display-font utility — Fraunces with optical-size tuned for big counters */
+@layer utilities {
+    .font-display {
+        font-family: var(--font-display);
+        font-variation-settings: "opsz" 84;
+        letter-spacing: -0.025em;
+    }
+    .font-display-tight {
+        font-family: var(--font-display);
+        font-variation-settings: "opsz" 144;
+        letter-spacing: -0.035em;
+        font-feature-settings: "ss01", "ss05";
+    }
+    .tabular {
+        font-feature-settings: "tnum" 1, "lnum" 1;
+        font-variant-numeric: tabular-nums lining-nums;
+    }
+    /* Hairline divider with edge fade — subtle but distinctive */
+    .hairline-x {
+        background: linear-gradient(
+            90deg,
+            transparent,
+            var(--jt-line) 12%,
+            var(--jt-line) 88%,
+            transparent
+        );
+        height: 1px;
+    }
+    .hairline-y {
+        background: linear-gradient(
+            180deg,
+            transparent,
+            var(--jt-line) 12%,
+            var(--jt-line) 88%,
+            transparent
+        );
+        width: 1px;
+    }
+    /* Grain texture overlay — paint over surfaces for subtle depth */
+    .grain::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+        background-size: 160px 160px;
+        opacity: 0.025;
+        mix-blend-mode: overlay;
+    }
+    /* Soft inner glow for hover states — premium card feel */
+    .glow-inset {
+        box-shadow:
+            inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+            inset 0 0 0 1px var(--jt-line);
+    }
+    /* Brand-gradient text */
+    .text-brand-grad {
+        background: var(--jt-brand-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
 }
 
 /* Scrollbars — subtle and themed. */
@@ -135,23 +218,57 @@ body,
     border-radius: 4px;
 }
 
+/* Page enter — subtle fade + lift, only once on initial mount. Stagger via delay classes */
+@keyframes jt-enter {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@layer utilities {
+    .jt-enter {
+        animation: jt-enter 380ms cubic-bezier(0.2, 0.65, 0.3, 1) both;
+    }
+    .jt-enter-d100 {
+        animation-delay: 60ms;
+    }
+    .jt-enter-d200 {
+        animation-delay: 120ms;
+    }
+    .jt-enter-d300 {
+        animation-delay: 180ms;
+    }
+    .jt-enter-d400 {
+        animation-delay: 240ms;
+    }
+}
+
 /* Common utility shortcuts via @apply-friendly classes. */
 @layer components {
     .jt-card {
         background-color: var(--jt-surface);
         border: 1px solid var(--jt-line);
-        border-radius: 0.75rem;
+        border-radius: 0.875rem;
     }
 
     .jt-card-hover {
         background-color: var(--jt-surface);
         border: 1px solid var(--jt-line);
-        border-radius: 0.75rem;
-        transition: background-color 150ms ease, border-color 150ms ease;
+        border-radius: 0.875rem;
+        transition:
+            background-color 180ms ease,
+            border-color 180ms ease,
+            transform 180ms ease;
     }
 
     .jt-card-hover:hover {
         background-color: var(--jt-surface-hover);
         border-color: var(--jt-line);
+        transform: translateY(-1px);
     }
 }

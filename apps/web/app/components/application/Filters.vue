@@ -46,10 +46,14 @@ const hasFilters = computed(
         props.modelValue.search.length > 0 ||
         props.modelValue.includeArchived,
 );
+
+const activeCount = computed(
+    () => props.modelValue.status.length + props.modelValue.source.length,
+);
 </script>
 
 <template>
-    <div class="flex flex-col gap-3 rounded-xl border border-jt-line bg-jt-surface p-3">
+    <div class="flex flex-col gap-4 rounded-2xl border border-jt-line bg-jt-surface p-4">
         <div class="flex items-center gap-2">
             <UiTextInput
                 :model-value="modelValue.search"
@@ -65,54 +69,70 @@ const hasFilters = computed(
                 icon="i-lucide-x"
                 @click="reset"
             >
-                Reset
+                <span class="hidden sm:inline">Filter zurücksetzen</span>
+                <span v-if="activeCount > 0" class="tabular text-jt-fg-faint">
+                    ({{ activeCount }})
+                </span>
             </UiButton>
         </div>
-        <div class="flex flex-wrap gap-3">
-            <fieldset class="flex flex-wrap items-center gap-1.5">
-                <legend class="mr-2 text-xs uppercase tracking-wide text-jt-fg-muted">
+
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <fieldset>
+                <legend class="mb-2 text-[10px] font-medium uppercase tracking-[0.14em] text-jt-fg-muted">
                     {{ t.applications.filterStatus }}
                 </legend>
-                <button
-                    v-for="status in APPLICATION_STATUS"
-                    :key="status"
-                    type="button"
-                    :class="[
-                        'rounded-md border px-2 py-0.5 text-xs transition',
-                        modelValue.status.includes(status)
-                            ? 'border-jt-brand bg-jt-brand-soft text-jt-brand'
-                            : 'border-jt-line text-jt-fg-muted hover:text-jt-fg',
-                    ]"
-                    @click="toggleStatus(status)"
-                >
-                    {{ t.status[status] }}
-                </button>
+                <div class="flex flex-wrap gap-1.5">
+                    <button
+                        v-for="status in APPLICATION_STATUS"
+                        :key="status"
+                        type="button"
+                        :class="[
+                            'inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition',
+                            modelValue.status.includes(status)
+                                ? 'border-jt-brand/40 bg-jt-brand-soft text-jt-brand'
+                                : 'border-jt-line bg-jt-base text-jt-fg-muted hover:border-jt-fg-faint hover:text-jt-fg',
+                        ]"
+                        @click="toggleStatus(status)"
+                    >
+                        <span
+                            :class="[
+                                'h-1.5 w-1.5 rounded-full',
+                                useStatusMeta(status).dotClass,
+                            ]"
+                        ></span>
+                        {{ t.status[status] }}
+                    </button>
+                </div>
             </fieldset>
-        </div>
-        <div class="flex flex-wrap gap-3">
-            <fieldset class="flex flex-wrap items-center gap-1.5">
-                <legend class="mr-2 text-xs uppercase tracking-wide text-jt-fg-muted">
+
+            <fieldset>
+                <legend class="mb-2 text-[10px] font-medium uppercase tracking-[0.14em] text-jt-fg-muted">
                     {{ t.applications.filterSource }}
                 </legend>
-                <button
-                    v-for="source in APPLICATION_SOURCE"
-                    :key="source"
-                    type="button"
-                    :class="[
-                        'rounded-md border px-2 py-0.5 text-xs transition',
-                        modelValue.source.includes(source)
-                            ? 'border-jt-brand bg-jt-brand-soft text-jt-brand'
-                            : 'border-jt-line text-jt-fg-muted hover:text-jt-fg',
-                    ]"
-                    @click="toggleSource(source)"
-                >
-                    {{ t.source[source] }}
-                </button>
+                <div class="flex flex-wrap gap-1.5">
+                    <button
+                        v-for="source in APPLICATION_SOURCE"
+                        :key="source"
+                        type="button"
+                        :class="[
+                            'inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition',
+                            modelValue.source.includes(source)
+                                ? 'border-jt-brand/40 bg-jt-brand-soft text-jt-brand'
+                                : 'border-jt-line bg-jt-base text-jt-fg-muted hover:border-jt-fg-faint hover:text-jt-fg',
+                        ]"
+                        @click="toggleSource(source)"
+                    >
+                        <Icon :name="useSourceMeta(source).icon" class="h-3 w-3" />
+                        {{ t.source[source] }}
+                    </button>
+                </div>
             </fieldset>
+        </div>
+
+        <div class="flex items-center justify-end border-t border-jt-line-faint pt-3">
             <UiCheckbox
                 :model-value="modelValue.includeArchived"
                 :label="t.applications.showArchived"
-                class="ml-auto"
                 @update:model-value="(v) => update('includeArchived', v)"
             />
         </div>

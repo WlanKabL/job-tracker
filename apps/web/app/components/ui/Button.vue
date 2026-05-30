@@ -21,21 +21,22 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const baseClasses =
-    "inline-flex items-center justify-center gap-2 rounded-md font-medium transition select-none disabled:cursor-not-allowed disabled:opacity-50";
+    "inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-all duration-150 select-none disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98]";
 
 const sizeClasses: Record<Size, string> = {
-    sm: "px-2.5 py-1 text-xs",
+    sm: "px-2.5 py-1.5 text-xs",
     md: "px-3.5 py-2 text-sm",
     lg: "px-5 py-2.5 text-base",
 };
 
 const variantClasses: Record<Variant, string> = {
-    brand: "bg-jt-brand text-jt-brand-text hover:bg-jt-brand-hover shadow-sm",
+    brand:
+        "bg-jt-brand text-jt-brand-text hover:bg-jt-brand-hover shadow-[0_2px_12px_-2px_rgba(155,137,255,0.45)]",
     ghost: "text-jt-fg-soft hover:text-jt-fg hover:bg-jt-surface-hover",
     outline:
-        "border border-jt-line bg-transparent text-jt-fg hover:bg-jt-surface-hover",
+        "border border-jt-line bg-jt-base text-jt-fg hover:border-jt-fg-faint hover:bg-jt-surface-hover",
     danger: "bg-jt-danger text-white hover:opacity-90",
-    subtle: "bg-jt-surface text-jt-fg hover:bg-jt-surface-hover",
+    subtle: "bg-jt-surface text-jt-fg-soft hover:bg-jt-surface-hover hover:text-jt-fg",
 };
 
 const iconSize = computed(() => (props.size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4"));
