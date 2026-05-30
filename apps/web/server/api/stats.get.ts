@@ -6,6 +6,7 @@ import type {
     FunnelStageData,
     FunnelStageKey,
     GoalProgress,
+    ResponseTimeStats,
     SourceCount,
     StatsResponse,
     StatusCount,
@@ -57,6 +58,7 @@ export default defineEventHandler(async (): Promise<StatsResponse> => {
 
     const weekly = computeWeekly(apps);
     const goal = computeGoal(apps, settings.dailyGoal, settings.weeklyGoal);
+    const responseTime = computeResponseTime(apps);
     const funnel = computeFunnel(apps);
     const upcomingFollowUps = await computeFollowUps(apps);
 
@@ -73,6 +75,7 @@ export default defineEventHandler(async (): Promise<StatsResponse> => {
         weekly,
         responseRate,
         goal,
+        responseTime,
         funnel,
         upcomingFollowUps,
     };
@@ -164,6 +167,56 @@ const computeGoal = (apps: Application[], dailyTarget: number, weeklyTarget: num
         }
     }
     return { dailyTarget, weeklyTarget, today, thisWeek };
+};
+
+const MS_PER_DAY = 86_400_000;
+
+/** Earliest timeline timestamp where the application entered "applied". */
+const appliedTimestamp = (app: Application): number | null => {
+    let earliest = Number.POSITIVE_INFINITY;
+    for (const entry of app.timeline) {
+        if (entry.type !== "status_change" || entry.toStatus !== "applied") continue;
+        const ts = new Date(entry.occurredAt).getTime();
+        if (ts < earliest) earliest = ts;
+    }
+    if (earliest !== Number.POSITIVE_INFINITY) return earliest;
+    return app.appliedAt ? new Date(app.appliedAt).getTime() : null;
+};
+
+/** Earliest real company response at or after the applied timestamp. */
+const firstResponseTimestamp = (app: Application, appliedMs: number): number | null => {
+    let earliest = Number.POSITIVE_INFINITY;
+    for (const entry of app.timeline) {
+        if (entry.type !== "status_change" || !entry.toStatus) continue;
+        if (!RESPONDED_STATUSES.has(entry.toStatus)) continue;
+        const ts = new Date(entry.occurredAt).getTime();
+        if (ts >= appliedMs && ts < earliest) earliest = ts;
+    }
+    return earliest === Number.POSITIVE_INFINITY ? null : earliest;
+};
+
+const computeResponseTime = (apps: Application[]): ResponseTimeStats => {
+    const durationsDays: number[] = [];
+    for (const app of apps) {
+        const appliedMs = appliedTimestamp(app);
+        if (appliedMs === null) continue;
+        const responseMs = firstResponseTimestamp(app, appliedMs);
+        if (responseMs === null) continue;
+        durationsDays.push((responseMs - appliedMs) / MS_PER_DAY);
+    }
+
+    if (durationsDays.length === 0) {
+        return { avgDays: 0, minDays: 0, maxDays: 0, sampleSize: 0 };
+    }
+
+    const sum = durationsDays.reduce((acc, d) => acc + d, 0);
+    const round = (value: number): number => Number(value.toFixed(1));
+    return {
+        avgDays: round(sum / durationsDays.length),
+        minDays: round(Math.min(...durationsDays)),
+        maxDays: round(Math.max(...durationsDays)),
+        sampleSize: durationsDays.length,
+    };
 };
 
 const maxReachedStageIndex = (app: Application): number => {

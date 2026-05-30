@@ -41,6 +41,18 @@ export interface GoalProgress {
     thisWeek: number;
 }
 
+/** Time from "applied" to the first real company response, in days. */
+export interface ResponseTimeStats {
+    /** Average across all applications that received a response. */
+    avgDays: number;
+    /** Fastest response. */
+    minDays: number;
+    /** Slowest response. */
+    maxDays: number;
+    /** How many applications contributed to these numbers. */
+    sampleSize: number;
+}
+
 export interface StatsResponse {
     totals: {
         /** Applications that were actually sent out (status !== "saved"). */
@@ -63,6 +75,8 @@ export interface StatsResponse {
         ratio: number;
     };
     goal: GoalProgress;
+    /** Time-to-first-response stats (avg/min/max) across responded applications. */
+    responseTime: ResponseTimeStats;
     funnel: FunnelData;
     upcomingFollowUps: Array<{
         applicationId: string;

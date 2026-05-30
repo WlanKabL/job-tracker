@@ -23,6 +23,20 @@ const responseRatePercent = computed(() =>
     stats.value ? Math.round(stats.value.responseRate.ratio * 100) : 0,
 );
 
+const formatDays = (value: number): string =>
+    value.toLocaleString("de-DE", { minimumFractionDigits: 0, maximumFractionDigits: 1 });
+
+const responseTime = computed(() => {
+    const rt = stats.value?.responseTime;
+    if (!rt || rt.sampleSize === 0) {
+        return { value: "—", hint: "Noch keine Antworten erhalten" };
+    }
+    return {
+        value: `${formatDays(rt.avgDays)} Tage`,
+        hint: `min ${formatDays(rt.minDays)} · max ${formatDays(rt.maxDays)} Tage`,
+    };
+});
+
 const clampedPercent = (value: number, target: number): number => {
     if (target === 0) return 0;
     return Math.min(100, Math.round((value / target) * 100));
@@ -110,17 +124,18 @@ const heroSubtitle = computed(() => {
 
         <div v-else class="flex flex-col gap-6">
             <section
-                class="relative overflow-hidden rounded-2xl border border-jt-line bg-gradient-to-br from-jt-brand-soft via-jt-surface to-jt-surface p-6 sm:p-8"
+                class="jt-enter grain relative overflow-hidden rounded-2xl border border-jt-line bg-gradient-to-br from-jt-brand-soft/70 via-jt-surface to-jt-surface px-6 py-7 sm:px-9 sm:py-10"
             >
                 <div class="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                     <div class="max-w-xl">
-                        <p class="text-xs uppercase tracking-wider text-jt-fg-muted">
+                        <p class="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-jt-fg-muted">
+                            <span class="h-1 w-6 bg-jt-brand/60"></span>
                             {{ greeting }}
                         </p>
-                        <h1 class="mt-1 text-3xl font-semibold tracking-tight text-jt-fg sm:text-4xl">
+                        <h1 class="font-display-tight mt-3 text-5xl leading-[0.95] text-jt-fg sm:text-6xl">
                             {{ t.dashboard.title }}
                         </h1>
-                        <p class="mt-2 text-sm text-jt-fg-soft">
+                        <p class="mt-4 max-w-md text-sm leading-relaxed text-jt-fg-soft">
                             {{ heroSubtitle }}
                         </p>
                     </div>
@@ -135,7 +150,7 @@ const heroSubtitle = computed(() => {
                 </div>
                 <div
                     aria-hidden="true"
-                    class="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-jt-brand opacity-10 blur-3xl"
+                    class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-jt-brand opacity-[0.13] blur-3xl"
                 />
                 <div
                     aria-hidden="true"
@@ -143,7 +158,7 @@ const heroSubtitle = computed(() => {
                 />
             </section>
 
-            <div class="grid grid-cols-2 gap-3 lg:grid-cols-5">
+            <div class="jt-enter jt-enter-d100 grid grid-cols-2 gap-3 lg:grid-cols-6">
                 <DashboardStatCard
                     label="Beworben"
                     :value="stats.totals.applications"
@@ -176,38 +191,44 @@ const heroSubtitle = computed(() => {
                     icon="i-lucide-message-circle-reply"
                     accent="success"
                 />
+                <DashboardStatCard
+                    label="Ø Antwortzeit"
+                    :value="responseTime.value"
+                    :hint="responseTime.hint"
+                    icon="i-lucide-timer"
+                />
             </div>
 
-            <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+            <div class="jt-enter jt-enter-d200 grid grid-cols-1 gap-4 xl:grid-cols-3">
                 <div class="xl:col-span-2">
                     <DashboardFunnelChart :funnel="stats.funnel" />
                 </div>
 
                 <div class="flex flex-col gap-4">
-                    <div class="rounded-xl border border-jt-line bg-jt-surface p-5">
+                    <div class="rounded-2xl border border-jt-line bg-jt-surface p-5">
                         <header class="mb-3 flex items-center justify-between">
-                            <h3 class="text-xs uppercase tracking-wide text-jt-fg-muted">
+                            <h3 class="text-[10px] font-medium uppercase tracking-[0.14em] text-jt-fg-muted">
                                 Tagesziel
                             </h3>
                             <Icon name="i-lucide-sunrise" class="h-4 w-4 text-jt-warning" />
                         </header>
                         <div class="flex items-baseline gap-2">
-                            <span class="text-3xl font-semibold text-jt-fg tabular-nums">
+                            <span class="font-display-tight tabular text-4xl text-jt-fg">
                                 {{ stats.goal.today }}
                             </span>
-                            <span class="text-base text-jt-fg-muted">
+                            <span class="tabular text-sm text-jt-fg-muted">
                                 / {{ stats.goal.dailyTarget }}
                             </span>
                             <span
                                 v-if="stats.goal.today >= stats.goal.dailyTarget"
-                                class="ml-auto rounded-full bg-jt-success-soft px-2 py-0.5 text-[11px] font-medium text-jt-success"
+                                class="ml-auto rounded-full bg-jt-success-soft px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-jt-success"
                             >
-                                ✓
+                                Erreicht
                             </span>
                         </div>
-                        <div class="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-jt-surface-raised">
+                        <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-jt-surface-raised">
                             <div
-                                class="h-full rounded-full bg-gradient-to-r from-jt-warning to-jt-brand transition-all"
+                                class="h-full rounded-full bg-gradient-to-r from-jt-warning to-jt-brand transition-all duration-500"
                                 :style="{ width: `${dailyPercent}%` }"
                             />
                         </div>
@@ -216,30 +237,30 @@ const heroSubtitle = computed(() => {
                         </p>
                     </div>
 
-                    <div class="rounded-xl border border-jt-line bg-jt-surface p-5">
+                    <div class="rounded-2xl border border-jt-line bg-jt-surface p-5">
                         <header class="mb-3 flex items-center justify-between">
-                            <h3 class="text-xs uppercase tracking-wide text-jt-fg-muted">
+                            <h3 class="text-[10px] font-medium uppercase tracking-[0.14em] text-jt-fg-muted">
                                 Wochenziel
                             </h3>
                             <Icon name="i-lucide-target" class="h-4 w-4 text-jt-brand" />
                         </header>
                         <div class="flex items-baseline gap-2">
-                            <span class="text-3xl font-semibold text-jt-fg tabular-nums">
+                            <span class="font-display-tight tabular text-4xl text-jt-fg">
                                 {{ stats.goal.thisWeek }}
                             </span>
-                            <span class="text-base text-jt-fg-muted">
+                            <span class="tabular text-sm text-jt-fg-muted">
                                 / {{ stats.goal.weeklyTarget }}
                             </span>
                             <span
                                 v-if="stats.goal.thisWeek >= stats.goal.weeklyTarget"
-                                class="ml-auto rounded-full bg-jt-success-soft px-2 py-0.5 text-[11px] font-medium text-jt-success"
+                                class="ml-auto rounded-full bg-jt-success-soft px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-jt-success"
                             >
-                                ✓
+                                Erreicht
                             </span>
                         </div>
-                        <div class="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-jt-surface-raised">
+                        <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-jt-surface-raised">
                             <div
-                                class="h-full rounded-full bg-gradient-to-r from-jt-brand to-jt-info transition-all"
+                                class="h-full rounded-full bg-gradient-to-r from-jt-brand to-jt-info transition-all duration-500"
                                 :style="{ width: `${weeklyPercent}%` }"
                             />
                         </div>
@@ -248,12 +269,12 @@ const heroSubtitle = computed(() => {
                         </p>
                     </div>
 
-                    <div class="rounded-xl border border-jt-line bg-jt-surface p-5">
+                    <div class="rounded-2xl border border-jt-line bg-jt-surface p-5">
                         <header class="mb-3 flex items-center justify-between">
-                            <h3 class="text-xs uppercase tracking-wide text-jt-fg-muted">
+                            <h3 class="text-[10px] font-medium uppercase tracking-[0.14em] text-jt-fg-muted">
                                 Status-Verteilung
                             </h3>
-                            <span class="text-xs text-jt-fg-muted tabular-nums">
+                            <span class="tabular text-xs text-jt-fg-muted">
                                 {{ stats.totals.applications + stats.totals.saved }}
                             </span>
                         </header>
@@ -270,8 +291,8 @@ const heroSubtitle = computed(() => {
                                 <span class="flex-1 truncate text-sm text-jt-fg-soft">
                                     {{ row.meta.label }}
                                 </span>
-                                <span class="text-sm font-medium text-jt-fg tabular-nums">{{ row.count }}</span>
-                                <span class="w-10 text-right text-xs text-jt-fg-faint tabular-nums">
+                                <span class="tabular text-sm font-medium text-jt-fg">{{ row.count }}</span>
+                                <span class="tabular w-10 text-right text-xs text-jt-fg-faint">
                                     {{ Math.round(row.ratio * 100) }}%
                                 </span>
                             </li>
@@ -280,12 +301,12 @@ const heroSubtitle = computed(() => {
                 </div>
             </div>
 
-            <div class="rounded-xl border border-jt-line bg-jt-surface p-5">
+            <div class="jt-enter jt-enter-d300 rounded-2xl border border-jt-line bg-jt-surface p-5">
                 <DashboardWeeklyBars :weeks="stats.weekly" />
             </div>
 
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <div class="rounded-xl border border-jt-line bg-jt-surface p-5">
+            <div class="jt-enter jt-enter-d400 grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <div class="rounded-2xl border border-jt-line bg-jt-surface p-5">
                     <header class="mb-3 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <Icon name="i-lucide-alarm-clock" class="h-4 w-4 text-jt-warning" />
@@ -293,7 +314,7 @@ const heroSubtitle = computed(() => {
                                 {{ t.dashboard.followUps.title }}
                             </h3>
                         </div>
-                        <span class="rounded-full bg-jt-surface-raised px-2 py-0.5 text-xs text-jt-fg-muted">
+                        <span class="tabular rounded-full bg-jt-surface-raised px-2 py-0.5 text-xs text-jt-fg-muted">
                             {{ stats.upcomingFollowUps.length }}
                         </span>
                     </header>
@@ -332,7 +353,7 @@ const heroSubtitle = computed(() => {
                     </ul>
                 </div>
 
-                <div class="rounded-xl border border-jt-line bg-jt-surface p-5">
+                <div class="rounded-2xl border border-jt-line bg-jt-surface p-5">
                     <header class="mb-3 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <Icon name="i-lucide-history" class="h-4 w-4 text-jt-brand" />
