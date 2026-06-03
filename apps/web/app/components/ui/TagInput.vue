@@ -16,11 +16,18 @@ const t = useT();
 const input = ref("");
 const inputRef = ref<HTMLInputElement | null>(null);
 
+/** Adds one or more tags from a raw string, splitting on commas and skipping duplicates. */
 const add = (raw: string) => {
-    const value = raw.trim();
-    if (!value) return;
-    if (props.modelValue.includes(value)) return;
-    emit("update:modelValue", [...props.modelValue, value]);
+    const parts = raw
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean);
+    if (parts.length === 0) return;
+    const next = [...props.modelValue];
+    for (const part of parts) {
+        if (!next.includes(part)) next.push(part);
+    }
+    if (next.length !== props.modelValue.length) emit("update:modelValue", next);
 };
 
 const remove = (tag: string) => {
@@ -40,6 +47,14 @@ const handleKeydown = (event: KeyboardEvent) => {
     if (event.key === "Backspace" && input.value === "" && props.modelValue.length > 0) {
         remove(props.modelValue[props.modelValue.length - 1]!);
     }
+};
+
+const onPaste = (event: ClipboardEvent) => {
+    const text = event.clipboardData?.getData("text") ?? "";
+    if (!text.includes(",")) return;
+    event.preventDefault();
+    add(text);
+    input.value = "";
 };
 
 const onBlur = () => {
@@ -81,6 +96,7 @@ const placeholder = computed(() => props.placeholder ?? t.applicationForm.placeh
                 :placeholder="placeholder"
                 class="min-w-[80px] flex-1 bg-transparent px-1 py-0.5 text-sm text-jt-fg outline-none placeholder:text-jt-fg-faint"
                 @keydown="handleKeydown"
+                @paste="onPaste"
                 @blur="onBlur"
             />
         </div>
