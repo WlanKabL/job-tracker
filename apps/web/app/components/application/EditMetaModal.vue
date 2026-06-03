@@ -35,6 +35,7 @@ const form = reactive({
     requirements: [...props.application.requirements],
     niceToHaves: [...props.application.niceToHaves],
     benefits: [...props.application.benefits],
+    description: props.application.description ?? "",
     notes: props.application.notes ?? "",
     rating: props.application.rating,
 });
@@ -56,6 +57,7 @@ watch(
         form.requirements = [...app.requirements];
         form.niceToHaves = [...app.niceToHaves];
         form.benefits = [...app.benefits];
+        form.description = app.description ?? "";
         form.notes = app.notes ?? "";
         form.rating = app.rating;
     },
@@ -67,24 +69,27 @@ const workModeOptions = WORK_MODE.map((m) => ({ value: m, label: t.workMode[m] }
 const submit = () => {
     const min = form.salaryMin ? Number(form.salaryMin) : undefined;
     const max = form.salaryMax ? Number(form.salaryMax) : undefined;
+    // The modal is a full editor: emptied optional fields send `null` to clear them
+    // explicitly, since `undefined` would be treated as "leave unchanged" server-side.
     const patch: ApplicationUpdateInput = {
         position: form.position.trim(),
         source: form.source,
-        sourceUrl: form.sourceUrl.trim() || undefined,
-        appliedAt: form.appliedAt ? new Date(form.appliedAt).toISOString() : undefined,
-        nextFollowUpAt: form.nextFollowUpAt ? new Date(form.nextFollowUpAt).toISOString() : undefined,
-        location: form.location.trim() || undefined,
-        workMode: form.workMode,
+        sourceUrl: form.sourceUrl.trim() || null,
+        appliedAt: form.appliedAt ? new Date(form.appliedAt).toISOString() : null,
+        nextFollowUpAt: form.nextFollowUpAt ? new Date(form.nextFollowUpAt).toISOString() : null,
+        location: form.location.trim() || null,
+        workMode: form.workMode ?? null,
         salary:
             min !== undefined || max !== undefined
                 ? { min, max, currency: form.salaryCurrency || "EUR", period: "yearly" }
-                : undefined,
+                : null,
         techStack: form.techStack,
         requirements: form.requirements,
         niceToHaves: form.niceToHaves,
         benefits: form.benefits,
-        notes: form.notes.trim() || undefined,
-        rating: form.rating,
+        description: form.description.trim() || null,
+        notes: form.notes.trim() || null,
+        rating: form.rating ?? null,
     };
     emit("save", patch);
 };
@@ -122,6 +127,11 @@ const submit = () => {
             <UiTagInput v-model="form.requirements" :label="t.applicationForm.fields.requirements" />
             <UiTagInput v-model="form.niceToHaves" :label="t.applicationForm.fields.niceToHaves" />
             <UiTagInput v-model="form.benefits" :label="t.applicationForm.fields.benefits" />
+            <UiTextarea
+                v-model="form.description"
+                :label="t.applicationForm.fields.description"
+                :rows="6"
+            />
             <UiTextarea v-model="form.notes" :label="t.applicationForm.fields.notes" :rows="3" />
         </div>
         <template #footer>

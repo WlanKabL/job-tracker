@@ -77,7 +77,22 @@ export const applicationUpdateSchema = applicationSchema
         documents: true,
         openQuestions: true,
     })
-    .partial();
+    .partial()
+    .extend({
+        // Clearable optional fields accept `null` as an explicit "unset this value"
+        // signal. An omitted key (or `undefined`) means "leave unchanged"; `null`
+        // resets the field. This lets the full edit form clear values, not only set them.
+        sourceUrl: optionalString(1000).nullable(),
+        appliedAt: isoDateSchema.optional().nullable(),
+        nextFollowUpAt: isoDateSchema.optional().nullable(),
+        location: optionalString(200).nullable(),
+        workMode: z.enum(WORK_MODE).optional().nullable(),
+        salary: salarySchema.optional().nullable(),
+        description: optionalString(50000).nullable(),
+        cheatsheet: optionalString(50000).nullable(),
+        notes: optionalString(20000).nullable(),
+        rating: z.number().int().min(1).max(5).optional().nullable(),
+    });
 
 export type ApplicationUpdateInput = z.infer<typeof applicationUpdateSchema>;
 

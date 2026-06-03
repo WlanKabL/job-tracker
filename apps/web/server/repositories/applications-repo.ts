@@ -41,6 +41,21 @@ const stripUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> =
     return out as Partial<T>;
 };
 
+/**
+ * Merge a partial update onto an application, distinguishing three cases per key:
+ * omitted/`undefined` → keep current value, `null` → clear the field, otherwise set it.
+ * Clearing stores `undefined`, which JSON serialization drops so reads stay schema-valid.
+ */
+const applyUpdate = (app: Application, patch: ApplicationUpdateInput): Application => {
+    const next: Application = { ...app, updatedAt: now() };
+    for (const key of Object.keys(patch) as Array<keyof ApplicationUpdateInput>) {
+        const value = patch[key];
+        if (value === undefined) continue;
+        Reflect.set(next, key, value === null ? undefined : value);
+    }
+    return next;
+};
+
 const sortByUpdatedDesc = (a: Application, b: Application) =>
     b.updatedAt.localeCompare(a.updatedAt);
 
@@ -158,11 +173,7 @@ export const applicationsRepo = {
     },
 
     async update(id: string, patch: ApplicationUpdateInput): Promise<Application> {
-        const result = await updateInPlace(id, (app) => ({
-            ...app,
-            ...stripUndefined(patch),
-            updatedAt: now(),
-        }));
+        const result = await updateInPlace(id, (app) => applyUpdate(app, patch));
         return result;
     },
 
