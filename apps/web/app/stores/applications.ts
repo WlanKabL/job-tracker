@@ -79,9 +79,14 @@ export const useApplicationsStore = defineStore("applications", () => {
     };
 
     const upsert = (next: Application) => {
+        const companiesStore = useCompaniesStore();
         const idx = items.value.findIndex((a) => a.id === next.id);
         const existingCompany = idx === -1 ? null : items.value[idx]!.company;
-        const merged: ApplicationWithCompany = { ...next, company: existingCompany };
+        // Create/import responses carry no joined company, so a freshly upserted row would
+        // show "Unbekannt" until a full reload. Resolve it from the companies store instead.
+        const company =
+            existingCompany ?? companiesStore.items.find((c) => c.id === next.companyId) ?? null;
+        const merged: ApplicationWithCompany = { ...next, company };
         if (idx === -1) items.value = [merged, ...items.value];
         else items.value = items.value.map((a, i) => (i === idx ? merged : a));
     };

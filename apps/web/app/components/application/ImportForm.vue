@@ -101,8 +101,9 @@ const submit = async (
     try {
         const result = await api.applications.import(payload, resolveStrategy);
         toast.success(t.toast.imported);
-        applicationsStore.upsert(result.application);
+        // Company first so the application upsert can resolve its joined company immediately.
         companiesStore.upsert(result.company);
+        applicationsStore.upsert(result.application);
         lastDrift.value = result.drift;
         emit("done", result.application);
     } catch (err: unknown) {
