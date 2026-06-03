@@ -41,6 +41,9 @@ TEMP*
 tmp
 temp
 
+# Manual data safety backups (local only)
+.manual-backup/
+
 # Playwright + screenshots from dev checks
 .playwright-mcp/
 /*.png
