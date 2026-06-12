@@ -9,6 +9,9 @@ export const settingsSchema = z.object({
     dailyGoal: z.number().int().min(0).max(50).default(15),
     /** Bewerbungen pro Woche (Default 7 × dailyGoal = 105 — kann individuell überschrieben werden). */
     weeklyGoal: z.number().int().min(0).max(500).default(105),
+    /** Applicant identity rendered in export document headers. Empty string = not set. */
+    applicantName: z.string().trim().max(200).default(""),
+    baCustomerNumber: z.string().trim().max(50).default(""),
     lastExportAt: isoDateSchema.optional(),
     lastBackupAt: isoDateSchema.optional(),
 });
