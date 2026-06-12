@@ -61,6 +61,41 @@ const setWeeklyToDailyTimesSeven = () => {
     updateSetting("weeklyGoal", dailyGoal.value * 7);
 };
 
+const applicantName = ref("");
+const baCustomerNumber = ref("");
+
+watch(
+    settings,
+    (s) => {
+        if (!s) return;
+        applicantName.value = s.applicantName;
+        baCustomerNumber.value = s.baCustomerNumber;
+    },
+    { immediate: true },
+);
+
+// Saved on blur, not per keystroke: text inputs would otherwise PATCH per character.
+const saveApplicant = async () => {
+    if (!settings.value) return;
+    const name = applicantName.value.trim();
+    const customerNumber = baCustomerNumber.value.trim();
+    if (
+        name === settings.value.applicantName &&
+        customerNumber === settings.value.baCustomerNumber
+    ) {
+        return;
+    }
+    savingSettings.value = true;
+    try {
+        await settingsStore.update({ applicantName: name, baCustomerNumber: customerNumber });
+        toast.success(t.toast.saved);
+    } catch (err) {
+        toast.error(extractErrorMessage(err));
+    } finally {
+        savingSettings.value = false;
+    }
+};
+
 const downloadExport = async () => {
     try {
         const data = await api.data.export();
@@ -199,6 +234,22 @@ const onImportFile = async (event: Event) => {
                 </h2>
                 <div class="flex flex-col gap-5">
                     <div>
+                        <h3 class="text-sm font-medium text-jt-fg">{{ t.settings.applicant }}</h3>
+                        <p class="mt-1 text-xs text-jt-fg-muted">{{ t.settings.applicantHint }}</p>
+                        <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <UiTextInput
+                                v-model="applicantName"
+                                :label="t.settings.applicantName"
+                                @blur="saveApplicant"
+                            />
+                            <UiTextInput
+                                v-model="baCustomerNumber"
+                                :label="t.settings.baCustomerNumber"
+                                @blur="saveApplicant"
+                            />
+                        </div>
+                    </div>
+                    <div class="border-t border-jt-line-faint pt-5">
                         <h3 class="text-sm font-medium text-jt-fg">{{ t.settings.export }}</h3>
                         <p class="mt-1 text-xs text-jt-fg-muted">{{ t.settings.exportHint }}</p>
                         <UiButton
