@@ -1,4 +1,4 @@
-# Tabular Applications Export (XLSX / CSV / PDF) — Design
+# Tabular Applications Export (XLSX / CSV / PDF) Design
 
 Date: 2026-06-12
 Status: Approved in brainstorming session with WlanKabL
@@ -42,7 +42,8 @@ GET /api/export/applications?format=xlsx|csv|pdf&preset=afa|full&from=<ISO>&to=<
 ```
 
 - Query validated with a new `tabularExportQuerySchema` in `packages/shared`.
-- Invalid query or `from > to` → 400 via `createError`.
+- Invalid query or `from > to` → 422 via the existing `readQueryAs` / `invalidPayload`
+  helpers (project-wide pattern for validation errors).
 - Response: file buffer with correct `Content-Type` and `Content-Disposition`.
 
 Filenames:
@@ -139,7 +140,7 @@ applicant line in export headers.
 - Date range with zero matches: still a valid document with header and a "Keine
   Einträge im Zeitraum" notice row. Not an error.
 - Missing `appliedAt` in the full preset: empty cell, no fake date.
-- Invalid query / `from > to`: 400 via `createError`.
+- Invalid query / `from > to`: 422 via `readQueryAs` / `invalidPayload`.
 - 100+ applications: synchronous buffer generation is fine at this scale.
 
 ## Dependencies
