@@ -41,15 +41,15 @@ export class JsonFileStore<TData> {
         await this.writeQueue;
     }
 
-    async mutate<R = void>(
+    async mutate<R = undefined>(
         mutator: (current: TData) => TData | Promise<TData>,
         result?: (next: TData) => R,
-    ): Promise<R extends void ? TData : R> {
+    ): Promise<R extends undefined ? TData : R> {
         const current = await this.read();
         const cloned = structuredClone(current);
         const next = await mutator(cloned);
         await this.write(next);
-        return (result ? result(next) : next) as R extends void ? TData : R;
+        return (result ? result(next) : next) as R extends undefined ? TData : R;
     }
 
     /** Force-reload from disk on next read (testing/debug only). */
