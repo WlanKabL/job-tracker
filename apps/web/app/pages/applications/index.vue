@@ -13,6 +13,8 @@ await Promise.all([store.fetchAll(), settingsStore.fetch()]);
 type View = "kanban" | "list";
 const view = ref<View>(settingsStore.data?.defaultView ?? "kanban");
 
+const exportOpen = ref(false);
+
 const viewOptions = [
     { value: "kanban" as const, label: t.applications.viewKanban, icon: "i-lucide-columns-3" },
     { value: "list" as const, label: t.applications.viewList, icon: "i-lucide-list" },
@@ -33,6 +35,13 @@ const onMove = async (args: { applicationId: string; toStatus: ApplicationStatus
         <LayoutPageHeader :title="t.applications.title">
             <template #actions>
                 <UiSegmented v-model="view" :options="viewOptions" />
+                <UiButton
+                    variant="outline"
+                    icon="i-lucide-download"
+                    @click="exportOpen = true"
+                >
+                    {{ t.applications.export.button }}
+                </UiButton>
                 <UiButton
                     variant="brand"
                     icon="i-lucide-plus"
@@ -86,5 +95,7 @@ const onMove = async (args: { applicationId: string; toStatus: ApplicationStatus
                 :application="app"
             />
         </div>
+
+        <ApplicationExportModal :open="exportOpen" @close="exportOpen = false" />
     </div>
 </template>
