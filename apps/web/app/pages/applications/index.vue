@@ -35,11 +35,7 @@ const onMove = async (args: { applicationId: string; toStatus: ApplicationStatus
         <LayoutPageHeader :title="t.applications.title">
             <template #actions>
                 <UiSegmented v-model="view" :options="viewOptions" />
-                <UiButton
-                    variant="outline"
-                    icon="i-lucide-download"
-                    @click="exportOpen = true"
-                >
+                <UiButton variant="outline" icon="i-lucide-download" @click="exportOpen = true">
                     {{ t.applications.export.button }}
                 </UiButton>
                 <UiButton
@@ -58,7 +54,7 @@ const onMove = async (args: { applicationId: string; toStatus: ApplicationStatus
             @update:model-value="(v) => Object.assign(store.filters, v)"
         />
 
-        <p class="mb-3 text-xs text-jt-fg-muted">
+        <p class="text-jt-fg-muted mb-3 text-xs">
             {{ t.applications.countLabel(store.filtered.length) }}
         </p>
 
@@ -89,11 +85,7 @@ const onMove = async (args: { applicationId: string; toStatus: ApplicationStatus
         />
 
         <div v-else class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <ApplicationListRow
-                v-for="app in store.filtered"
-                :key="app.id"
-                :application="app"
-            />
+            <ApplicationListRow v-for="app in store.filtered" :key="app.id" :application="app" />
         </div>
 
         <ApplicationExportModal :open="exportOpen" @close="exportOpen = false" />

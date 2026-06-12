@@ -114,7 +114,8 @@ export const t = {
         followUps: {
             title: "Anstehende Follow-Ups",
             none: "Keine Follow-Ups eingetragen.",
-            dueIn: (days: number) => (days === 0 ? "heute" : `in ${days} Tag${days === 1 ? "" : "en"}`),
+            dueIn: (days: number) =>
+                days === 0 ? "heute" : `in ${days} Tag${days === 1 ? "" : "en"}`,
             overdueBy: (days: number) => `überfällig seit ${days} Tag${days === 1 ? "" : "en"}`,
         },
         weekly: {
@@ -134,8 +135,7 @@ export const t = {
         showArchived: "Archivierte anzeigen",
         countLabel: (n: number) => (n === 1 ? "1 Bewerbung" : `${n} Bewerbungen`),
         empty: "Noch keine Bewerbungen erfasst.",
-        emptyHint:
-            "Importiere die erste Bewerbung per JSON-Paste oder lege sie manuell an.",
+        emptyHint: "Importiere die erste Bewerbung per JSON-Paste oder lege sie manuell an.",
         startImport: "Erste Bewerbung anlegen",
         kanban: {
             dropHint: "Status durch Drag & Drop ändern.",
@@ -168,7 +168,7 @@ export const t = {
         tabImport: "JSON Import",
         tabManual: "Manuell",
         importPlaceholder:
-            "JSON von ChatGPT hier einfügen…\n\n{\n  \"company\": { \"name\": \"…\" },\n  \"position\": \"…\",\n  \"source\": \"linkedin\",\n  …\n}",
+            'JSON von ChatGPT hier einfügen…\n\n{\n  "company": { "name": "…" },\n  "position": "…",\n  "source": "linkedin",\n  …\n}',
         importValidate: "Validieren",
         importSubmit: "Importieren",
         importValid: "JSON ist gültig.",

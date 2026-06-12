@@ -54,11 +54,11 @@ const download = () => {
     <UiModal :open="open" :title="t.applications.export.title" size="md" @close="emit('close')">
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-1.5">
-                <span class="text-xs font-medium text-jt-fg-soft">
+                <span class="text-jt-fg-soft text-xs font-medium">
                     {{ t.applications.export.preset }}
                 </span>
                 <UiSegmented v-model="preset" :options="presetOptions" />
-                <p class="text-xs text-jt-fg-muted">
+                <p class="text-jt-fg-muted text-xs">
                     {{
                         preset === "afa"
                             ? t.applications.export.presetAfaHint
@@ -67,7 +67,7 @@ const download = () => {
                 </p>
             </div>
             <div class="flex flex-col gap-1.5">
-                <span class="text-xs font-medium text-jt-fg-soft">
+                <span class="text-jt-fg-soft text-xs font-medium">
                     {{ t.applications.export.format }}
                 </span>
                 <UiSegmented v-model="format" :options="formatOptions" />
@@ -82,7 +82,7 @@ const download = () => {
                     />
                     <UiTextInput v-model="to" type="date" :label="t.applications.export.to" />
                 </div>
-                <p class="mt-1 text-xs text-jt-fg-muted">
+                <p class="text-jt-fg-muted mt-1 text-xs">
                     {{ t.applications.export.rangeHint }}
                 </p>
             </div>
