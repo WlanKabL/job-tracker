@@ -1,4 +1,6 @@
-import { createPdf, setFonts } from "pdfmake";
+// pdfmake's node build is a CommonJS class instance; call methods on the
+// default export directly (destructuring would lose the `this` binding).
+import pdfmake from "pdfmake";
 import type { Content, TDocumentDefinitions, TableCell } from "pdfmake/interfaces";
 import type { ApplicationStatus } from "@job-tracker/shared";
 import type { ExportDocumentModel } from "./rows";
@@ -8,7 +10,7 @@ import type { ExportDocumentModel } from "./rows";
  * WinAnsi encoding covers German umlauts. Avoids Nitro asset issues with
  * pdfmake's embedded Roboto entirely.
  */
-setFonts({
+pdfmake.setFonts({
     Helvetica: {
         normal: "Helvetica",
         bold: "Helvetica-Bold",
@@ -96,5 +98,5 @@ export const renderPdf = async (doc: ExportDocumentModel): Promise<Buffer> => {
         content,
     };
 
-    return await createPdf(definition).getBuffer();
+    return await pdfmake.createPdf(definition).getBuffer();
 };
