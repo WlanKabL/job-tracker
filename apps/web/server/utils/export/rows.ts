@@ -152,8 +152,8 @@ export const buildExportDocument = (params: BuildExportParams): ExportDocumentMo
     const isoStamp = params.exportedAt.toISOString().slice(0, 10);
     const filename = isAfa
         ? params.from && params.to
-          ? `eigenbemuehungen-${params.from.slice(0, 10)}_${params.to.slice(0, 10)}`
-          : `eigenbemuehungen-${isoStamp}`
+            ? `eigenbemuehungen-${params.from.slice(0, 10)}_${params.to.slice(0, 10)}`
+            : `eigenbemuehungen-${isoStamp}`
         : `bewerbungen-export-${isoStamp}`;
 
     const rangeLabel =
@@ -165,9 +165,7 @@ export const buildExportDocument = (params: BuildExportParams): ExportDocumentMo
 
     const applicantParts = [
         params.settings.applicantName ? `Name: ${params.settings.applicantName}` : "",
-        params.settings.baCustomerNumber
-            ? `Kundennummer: ${params.settings.baCustomerNumber}`
-            : "",
+        params.settings.baCustomerNumber ? `Kundennummer: ${params.settings.baCustomerNumber}` : "",
     ].filter((s) => s.length > 0);
 
     return {
