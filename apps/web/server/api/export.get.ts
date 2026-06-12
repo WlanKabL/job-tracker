@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
         applications,
         settings,
     };
+    await settingsRepo.update({ lastExportAt: payload.exportedAt });
     const filename = `job-tracker-export-${payload.exportedAt.slice(0, 10)}.json`;
     setResponseHeader(event, "Content-Type", "application/json; charset=utf-8");
     setResponseHeader(event, "Content-Disposition", `attachment; filename="${filename}"`);

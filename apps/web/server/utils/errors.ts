@@ -1,4 +1,4 @@
-import { type ZodError } from "zod";
+import type { ZodError } from "zod";
 
 export const badRequest = (message: string, data?: unknown) =>
     createError({

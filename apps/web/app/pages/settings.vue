@@ -61,6 +61,41 @@ const setWeeklyToDailyTimesSeven = () => {
     updateSetting("weeklyGoal", dailyGoal.value * 7);
 };
 
+const applicantName = ref("");
+const baCustomerNumber = ref("");
+
+watch(
+    settings,
+    (s) => {
+        if (!s) return;
+        applicantName.value = s.applicantName;
+        baCustomerNumber.value = s.baCustomerNumber;
+    },
+    { immediate: true },
+);
+
+// Saved on blur, not per keystroke: text inputs would otherwise PATCH per character.
+const saveApplicant = async () => {
+    if (!settings.value) return;
+    const name = applicantName.value.trim();
+    const customerNumber = baCustomerNumber.value.trim();
+    if (
+        name === settings.value.applicantName &&
+        customerNumber === settings.value.baCustomerNumber
+    ) {
+        return;
+    }
+    savingSettings.value = true;
+    try {
+        await settingsStore.update({ applicantName: name, baCustomerNumber: customerNumber });
+        toast.success(t.toast.saved);
+    } catch (err) {
+        toast.error(extractErrorMessage(err));
+    } finally {
+        savingSettings.value = false;
+    }
+};
+
 const downloadExport = async () => {
     try {
         const data = await api.data.export();
@@ -127,13 +162,17 @@ const onImportFile = async (event: Event) => {
             <UiSpinner :label="t.common.loading" />
         </div>
         <div v-else class="flex flex-col gap-4">
-            <section class="jt-enter jt-enter-d100 rounded-2xl border border-jt-line bg-jt-surface p-5">
-                <h2 class="mb-4 text-[10px] font-medium uppercase tracking-[0.18em] text-jt-fg-muted">
+            <section
+                class="jt-enter jt-enter-d100 border-jt-line bg-jt-surface rounded-2xl border p-5"
+            >
+                <h2
+                    class="text-jt-fg-muted mb-4 text-[10px] font-medium tracking-[0.18em] uppercase"
+                >
                     {{ t.settings.sections.display }}
                 </h2>
-                <div class="flex flex-col divide-y divide-jt-line-faint">
+                <div class="divide-jt-line-faint flex flex-col divide-y">
                     <div class="flex items-center justify-between gap-4 py-3 first:pt-0">
-                        <span class="text-sm text-jt-fg">{{ t.settings.theme }}</span>
+                        <span class="text-jt-fg text-sm">{{ t.settings.theme }}</span>
                         <UiSegmented
                             :model-value="settings.theme"
                             :options="themeOptions"
@@ -141,7 +180,7 @@ const onImportFile = async (event: Event) => {
                         />
                     </div>
                     <div class="flex items-center justify-between gap-4 py-3 last:pb-0">
-                        <span class="text-sm text-jt-fg">{{ t.settings.defaultView }}</span>
+                        <span class="text-jt-fg text-sm">{{ t.settings.defaultView }}</span>
                         <UiSegmented
                             :model-value="settings.defaultView"
                             :options="viewOptions"
@@ -151,8 +190,12 @@ const onImportFile = async (event: Event) => {
                 </div>
             </section>
 
-            <section class="jt-enter jt-enter-d200 rounded-2xl border border-jt-line bg-jt-surface p-5">
-                <h2 class="mb-4 text-[10px] font-medium uppercase tracking-[0.18em] text-jt-fg-muted">
+            <section
+                class="jt-enter jt-enter-d200 border-jt-line bg-jt-surface rounded-2xl border p-5"
+            >
+                <h2
+                    class="text-jt-fg-muted mb-4 text-[10px] font-medium tracking-[0.18em] uppercase"
+                >
                     {{ t.settings.sections.workflow }}
                 </h2>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -184,7 +227,7 @@ const onImportFile = async (event: Event) => {
                 <div class="mt-3 flex items-center justify-end">
                     <button
                         type="button"
-                        class="inline-flex items-center gap-1 text-xs text-jt-brand hover:underline"
+                        class="text-jt-brand inline-flex items-center gap-1 text-xs hover:underline"
                         @click="setWeeklyToDailyTimesSeven"
                     >
                         <Icon name="i-lucide-zap" class="h-3 w-3" />
@@ -193,14 +236,34 @@ const onImportFile = async (event: Event) => {
                 </div>
             </section>
 
-            <section class="jt-enter jt-enter-d300 rounded-2xl border border-jt-line bg-jt-surface p-5">
-                <h2 class="mb-4 text-[10px] font-medium uppercase tracking-[0.18em] text-jt-fg-muted">
+            <section
+                class="jt-enter jt-enter-d300 border-jt-line bg-jt-surface rounded-2xl border p-5"
+            >
+                <h2
+                    class="text-jt-fg-muted mb-4 text-[10px] font-medium tracking-[0.18em] uppercase"
+                >
                     {{ t.settings.sections.data }}
                 </h2>
                 <div class="flex flex-col gap-5">
                     <div>
-                        <h3 class="text-sm font-medium text-jt-fg">{{ t.settings.export }}</h3>
-                        <p class="mt-1 text-xs text-jt-fg-muted">{{ t.settings.exportHint }}</p>
+                        <h3 class="text-jt-fg text-sm font-medium">{{ t.settings.applicant }}</h3>
+                        <p class="text-jt-fg-muted mt-1 text-xs">{{ t.settings.applicantHint }}</p>
+                        <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <UiTextInput
+                                v-model="applicantName"
+                                :label="t.settings.applicantName"
+                                @blur="saveApplicant"
+                            />
+                            <UiTextInput
+                                v-model="baCustomerNumber"
+                                :label="t.settings.baCustomerNumber"
+                                @blur="saveApplicant"
+                            />
+                        </div>
+                    </div>
+                    <div class="border-jt-line-faint border-t pt-5">
+                        <h3 class="text-jt-fg text-sm font-medium">{{ t.settings.export }}</h3>
+                        <p class="text-jt-fg-muted mt-1 text-xs">{{ t.settings.exportHint }}</p>
                         <UiButton
                             class="mt-3"
                             variant="outline"
@@ -210,9 +273,9 @@ const onImportFile = async (event: Event) => {
                             {{ t.settings.exportDownload }}
                         </UiButton>
                     </div>
-                    <div class="border-t border-jt-line-faint pt-5">
-                        <h3 class="text-sm font-medium text-jt-fg">{{ t.settings.import }}</h3>
-                        <p class="mt-1 text-xs text-jt-fg-muted">{{ t.settings.importHint }}</p>
+                    <div class="border-jt-line-faint border-t pt-5">
+                        <h3 class="text-jt-fg text-sm font-medium">{{ t.settings.import }}</h3>
+                        <p class="text-jt-fg-muted mt-1 text-xs">{{ t.settings.importHint }}</p>
                         <input
                             ref="importFileInput"
                             type="file"
@@ -230,19 +293,19 @@ const onImportFile = async (event: Event) => {
                             {{ t.settings.importFile }}
                         </UiButton>
                     </div>
-                    <div class="border-t border-jt-line-faint pt-5">
-                        <h3 class="text-sm font-medium text-jt-fg">{{ t.settings.backups }}</h3>
-                        <p class="mt-1 text-xs text-jt-fg-muted">{{ t.settings.backupsHint }}</p>
+                    <div class="border-jt-line-faint border-t pt-5">
+                        <h3 class="text-jt-fg text-sm font-medium">{{ t.settings.backups }}</h3>
+                        <p class="text-jt-fg-muted mt-1 text-xs">{{ t.settings.backupsHint }}</p>
                         <ul v-if="backups.length > 0" class="mt-3 flex flex-wrap gap-1.5">
                             <li
                                 v-for="date in backups"
                                 :key="date"
-                                class="tabular rounded-md border border-jt-line bg-jt-base px-2 py-1 font-mono text-[11px] text-jt-fg-soft"
+                                class="tabular border-jt-line bg-jt-base text-jt-fg-soft rounded-md border px-2 py-1 font-mono text-[11px]"
                             >
                                 {{ date }}
                             </li>
                         </ul>
-                        <p v-else class="mt-3 text-xs italic text-jt-fg-faint">
+                        <p v-else class="text-jt-fg-faint mt-3 text-xs italic">
                             {{ t.common.empty }}
                         </p>
                     </div>

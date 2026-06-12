@@ -1,7 +1,11 @@
+import { SOURCE_LABELS_DE, STATUS_LABELS_DE, WORK_MODE_LABELS_DE } from "@job-tracker/shared";
+
 /**
  * Central German UI strings. No vue-i18n setup — just typed constants.
  * Import via `import { t } from "~/i18n/de"` or via `useT()` composable.
  * If EN is added later, swap this for a real i18n module — structure stays.
+ * Enum labels (status, source, workMode) live in @job-tracker/shared so the
+ * server-side exports use the same wording.
  */
 export const t = {
     app: {
@@ -54,34 +58,13 @@ export const t = {
             tooLong: "Zu lang",
         },
     },
-    status: {
-        saved: "Vorgemerkt",
-        applied: "Beworben",
-        phone: "Telefon-Screening",
-        interview: "Interview",
-        offer: "Angebot",
-        rejected: "Abgesagt",
-        withdrawn: "Zurückgezogen",
-        ghosted: "Geghostet",
-    },
+    status: STATUS_LABELS_DE,
     statusGroup: {
         active: "Aktiv",
         closed: "Abgeschlossen",
     },
-    source: {
-        linkedin: "LinkedIn",
-        initiativ: "Initiativ",
-        company_website: "Unternehmensseite",
-        indeed: "Indeed",
-        stepstone: "StepStone",
-        xing: "Xing",
-        other: "Sonstige",
-    },
-    workMode: {
-        remote: "Remote",
-        hybrid: "Hybrid",
-        on_site: "Vor Ort",
-    },
+    source: SOURCE_LABELS_DE,
+    workMode: WORK_MODE_LABELS_DE,
     companySize: {
         "1-10": "1–10",
         "11-50": "11–50",
@@ -131,7 +114,8 @@ export const t = {
         followUps: {
             title: "Anstehende Follow-Ups",
             none: "Keine Follow-Ups eingetragen.",
-            dueIn: (days: number) => (days === 0 ? "heute" : `in ${days} Tag${days === 1 ? "" : "en"}`),
+            dueIn: (days: number) =>
+                days === 0 ? "heute" : `in ${days} Tag${days === 1 ? "" : "en"}`,
             overdueBy: (days: number) => `überfällig seit ${days} Tag${days === 1 ? "" : "en"}`,
         },
         weekly: {
@@ -151,11 +135,31 @@ export const t = {
         showArchived: "Archivierte anzeigen",
         countLabel: (n: number) => (n === 1 ? "1 Bewerbung" : `${n} Bewerbungen`),
         empty: "Noch keine Bewerbungen erfasst.",
-        emptyHint:
-            "Importiere die erste Bewerbung per JSON-Paste oder lege sie manuell an.",
+        emptyHint: "Importiere die erste Bewerbung per JSON-Paste oder lege sie manuell an.",
         startImport: "Erste Bewerbung anlegen",
         kanban: {
             dropHint: "Status durch Drag & Drop ändern.",
+        },
+        export: {
+            button: "Exportieren",
+            title: "Bewerbungen exportieren",
+            preset: "Vorlage",
+            presetAfa: "Agentur für Arbeit",
+            presetFull: "Komplett",
+            presetAfaHint:
+                "Nur tatsächlich beworbene Einträge, behördentaugliche Formulierungen, Archivierte inklusive.",
+            presetFullHint: "Alle Felder. Archivierte optional.",
+            format: "Format",
+            formatXlsx: "Excel (XLSX)",
+            formatCsv: "CSV",
+            formatPdf: "PDF",
+            from: "Von",
+            to: "Bis",
+            rangeHint: "Leer lassen für den gesamten Zeitraum.",
+            includeArchived: "Archivierte einbeziehen",
+            submit: "Exportieren",
+            started: "Export gestartet.",
+            invalidRange: "Das Von-Datum muss vor dem Bis-Datum liegen.",
         },
     },
     applicationNew: {
@@ -164,7 +168,7 @@ export const t = {
         tabImport: "JSON Import",
         tabManual: "Manuell",
         importPlaceholder:
-            "JSON von ChatGPT hier einfügen…\n\n{\n  \"company\": { \"name\": \"…\" },\n  \"position\": \"…\",\n  \"source\": \"linkedin\",\n  …\n}",
+            'JSON von ChatGPT hier einfügen…\n\n{\n  "company": { "name": "…" },\n  "position": "…",\n  "source": "linkedin",\n  …\n}',
         importValidate: "Validieren",
         importSubmit: "Importieren",
         importValid: "JSON ist gültig.",
@@ -407,6 +411,11 @@ export const t = {
         backups: "Automatische Backups",
         backupsHint:
             "Vor jeder Änderung wird einmal pro Tag ein Backup angelegt. Speicherort: apps/web/data/backups/",
+        applicant: "Bewerberdaten für Exporte",
+        applicantHint:
+            "Erscheinen im Kopf der Export-Dokumente, z.B. im Nachweis für die Agentur für Arbeit.",
+        applicantName: "Name",
+        baCustomerNumber: "BA-Kundennummer",
     },
     toast: {
         saved: "Gespeichert.",
