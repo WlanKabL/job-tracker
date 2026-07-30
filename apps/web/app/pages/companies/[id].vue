@@ -60,11 +60,11 @@ const saveEdit = async () => {
     if (!data.value) return;
     const patch: CompanyUpdateInput = {
         name: form.name.trim(),
-        website: form.website.trim() || undefined,
-        industry: form.industry.trim() || undefined,
+        website: form.website.trim(),
+        industry: form.industry.trim(),
         size: (form.size || undefined) as CompanyUpdateInput["size"],
-        location: form.location.trim() || undefined,
-        notes: form.notes.trim() || undefined,
+        location: form.location.trim(),
+        notes: form.notes.trim(),
     };
     try {
         const updated = await companiesStore.update(data.value.id, patch);

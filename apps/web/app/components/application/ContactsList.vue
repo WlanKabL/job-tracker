@@ -49,11 +49,11 @@ const submit = () => {
     if (!form.name.trim()) return;
     const payload: ContactCreateInput = {
         name: form.name.trim(),
-        role: form.role?.toString().trim() || undefined,
-        email: form.email?.toString().trim() || undefined,
-        phone: form.phone?.toString().trim() || undefined,
-        linkedinUrl: form.linkedinUrl?.toString().trim() || undefined,
-        notes: form.notes?.toString().trim() || undefined,
+        role: form.role?.toString().trim() ?? "",
+        email: form.email?.toString().trim() ?? "",
+        phone: form.phone?.toString().trim() ?? "",
+        linkedinUrl: form.linkedinUrl?.toString().trim() ?? "",
+        notes: form.notes?.toString().trim() ?? "",
     };
     if (editing.value) {
         emit("update", { contactId: editing.value.id, patch: payload });

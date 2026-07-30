@@ -70,10 +70,10 @@ const submit = () => {
     const patch: ApplicationUpdateInput = {
         position: form.position.trim(),
         source: form.source,
-        sourceUrl: form.sourceUrl.trim() || undefined,
+        sourceUrl: form.sourceUrl.trim(),
         appliedAt: form.appliedAt ? new Date(form.appliedAt).toISOString() : undefined,
         nextFollowUpAt: form.nextFollowUpAt ? new Date(form.nextFollowUpAt).toISOString() : undefined,
-        location: form.location.trim() || undefined,
+        location: form.location.trim(),
         workMode: form.workMode,
         salary:
             min !== undefined || max !== undefined
@@ -83,7 +83,7 @@ const submit = () => {
         requirements: form.requirements,
         niceToHaves: form.niceToHaves,
         benefits: form.benefits,
-        notes: form.notes.trim() || undefined,
+        notes: form.notes.trim(),
         rating: form.rating,
     };
     emit("save", patch);

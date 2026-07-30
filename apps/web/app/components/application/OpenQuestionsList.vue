@@ -65,7 +65,7 @@ const submit = () => {
     if (!form.question.trim()) return;
     const payload: OpenQuestionCreateInput = {
         question: form.question.trim(),
-        answer: form.answer.trim() || undefined,
+        answer: form.answer.trim(),
         askedAt: form.askedAt ? new Date(form.askedAt).toISOString() : undefined,
     };
     if (form.questionId) {

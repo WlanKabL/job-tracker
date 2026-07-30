@@ -61,10 +61,10 @@ const submit = () => {
     const payload: DocumentCreateInput = {
         type: form.type,
         name: form.name.trim(),
-        filename: form.filename?.toString().trim() || undefined,
-        url: form.url?.toString().trim() || undefined,
-        version: form.version?.toString().trim() || undefined,
-        notes: form.notes?.toString().trim() || undefined,
+        filename: form.filename?.toString().trim() ?? "",
+        url: form.url?.toString().trim() ?? "",
+        version: form.version?.toString().trim() ?? "",
+        notes: form.notes?.toString().trim() ?? "",
     };
     if (editing.value) {
         emit("update", { documentId: editing.value.id, patch: payload });

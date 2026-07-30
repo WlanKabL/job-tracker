@@ -21,6 +21,7 @@ import { canTransition } from "@job-tracker/shared";
 import { dataFile } from "../utils/paths";
 import { getStore } from "../utils/json-store";
 import { conflict, notFound } from "../utils/errors";
+import { mergePatch } from "../utils/patch";
 
 interface ApplicationsFile {
     version: 1;
@@ -32,14 +33,6 @@ const defaultFile: ApplicationsFile = { version: 1, applications: [] };
 const store = () => getStore<ApplicationsFile>(dataFile("applications.json"), defaultFile);
 
 const now = () => new Date().toISOString();
-
-const stripUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
-    const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(obj)) {
-        if (v !== undefined) out[k] = v;
-    }
-    return out as Partial<T>;
-};
 
 const sortByUpdatedDesc = (a: Application, b: Application) =>
     b.updatedAt.localeCompare(a.updatedAt);
@@ -159,8 +152,7 @@ export const applicationsRepo = {
 
     async update(id: string, patch: ApplicationUpdateInput): Promise<Application> {
         const result = await updateInPlace(id, (app) => ({
-            ...app,
-            ...stripUndefined(patch),
+            ...mergePatch(app, patch),
             updatedAt: now(),
         }));
         return result;
@@ -267,7 +259,7 @@ export const applicationsRepo = {
             const idx = app.contacts.findIndex((c) => c.id === contactId);
             if (idx === -1) throw notFound("Contact");
             const next = [...app.contacts];
-            next[idx] = { ...next[idx]!, ...stripUndefined(patch) };
+            next[idx] = mergePatch(next[idx]!, patch);
             return { ...app, contacts: next, updatedAt: now() };
         });
     },
@@ -309,7 +301,7 @@ export const applicationsRepo = {
             const idx = app.documents.findIndex((d) => d.id === documentId);
             if (idx === -1) throw notFound("Document");
             const next = [...app.documents];
-            next[idx] = { ...next[idx]!, ...stripUndefined(patch) };
+            next[idx] = mergePatch(next[idx]!, patch);
             return { ...app, documents: next, updatedAt: now() };
         });
     },
@@ -350,7 +342,7 @@ export const applicationsRepo = {
             const idx = list.findIndex((q) => q.id === questionId);
             if (idx === -1) throw notFound("Open question");
             const next = [...list];
-            const merged = { ...next[idx]!, ...stripUndefined(patch) };
+            const merged = mergePatch(next[idx]!, patch);
             if (patch.answer !== undefined && patch.answer.length > 0 && !merged.answeredAt) {
                 merged.answeredAt = now();
             }

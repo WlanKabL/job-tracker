@@ -7,6 +7,7 @@ import type {
 import { dataFile } from "../utils/paths";
 import { getStore } from "../utils/json-store";
 import { normalizeCompanyName } from "../utils/normalize";
+import { mergePatch } from "../utils/patch";
 
 interface CompaniesFile {
     version: 1;
@@ -62,8 +63,7 @@ export const companiesRepo = {
             const idx = current.companies.findIndex((c) => c.id === id);
             if (idx === -1) return current;
             const merged: Company = {
-                ...current.companies[idx]!,
-                ...stripUndefined(patch),
+                ...mergePatch(current.companies[idx]!, patch),
                 updatedAt: now(),
             };
             const next = [...current.companies];
@@ -84,12 +84,4 @@ export const companiesRepo = {
         });
         return deleted;
     },
-};
-
-const stripUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
-    const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(obj)) {
-        if (v !== undefined) out[k] = v;
-    }
-    return out as Partial<T>;
 };

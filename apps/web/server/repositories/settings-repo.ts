@@ -2,6 +2,7 @@ import type { Settings, SettingsUpdateInput } from "@job-tracker/shared";
 import { settingsSchema } from "@job-tracker/shared";
 import { dataFile } from "../utils/paths";
 import { getStore } from "../utils/json-store";
+import { mergePatch } from "../utils/patch";
 
 const defaultSettings: Settings = settingsSchema.parse({});
 
@@ -20,18 +21,9 @@ export const settingsRepo = {
     },
 
     async update(patch: SettingsUpdateInput): Promise<Settings> {
-        const next = await store().mutate((current) => ({
-            ...withDefaults(current),
-            ...stripUndefined(patch),
-        }));
+        const next = await store().mutate((current) =>
+            mergePatch(withDefaults(current), patch),
+        );
         return withDefaults(next);
     },
-};
-
-const stripUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
-    const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(obj)) {
-        if (v !== undefined) out[k] = v;
-    }
-    return out as Partial<T>;
 };
