@@ -95,6 +95,10 @@ watch(
     { immediate: true },
 );
 
+const cheatsheetDirty = computed(
+    () => cheatsheet.value !== (data.value?.cheatsheet ?? ""),
+);
+
 const saveCheatsheet = async () => {
     if (!data.value) return;
     try {
@@ -297,6 +301,7 @@ const switchToDescription = () => {
                 <ApplicationCheatsheetEditor
                     v-else-if="tab === 'cheatsheet'"
                     v-model="cheatsheet"
+                    :dirty="cheatsheetDirty"
                     @save="saveCheatsheet"
                 />
 

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 interface Props {
     modelValue: string;
+    dirty: boolean;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 const emit = defineEmits<{
     "update:modelValue": [v: string];
     save: [];
@@ -13,20 +14,7 @@ const t = useT();
 type Mode = "edit" | "preview" | "split";
 const mode = ref<Mode>("split");
 
-const local = ref(props.modelValue);
-const dirty = computed(() => local.value !== props.modelValue);
-
-watch(
-    () => props.modelValue,
-    (v) => {
-        local.value = v;
-    },
-);
-
-const update = (v: string) => {
-    local.value = v;
-    emit("update:modelValue", v);
-};
+const update = (v: string) => emit("update:modelValue", v);
 
 const save = () => emit("save");
 
@@ -59,7 +47,7 @@ const modeOptions = [
         >
             <UiTextarea
                 v-if="mode !== 'preview'"
-                :model-value="local"
+                :model-value="modelValue"
                 :rows="20"
                 monospace
                 @update:model-value="update"
@@ -68,7 +56,7 @@ const modeOptions = [
                 v-if="mode !== 'edit'"
                 class="rounded-md border border-jt-line bg-jt-surface p-4"
             >
-                <UiMarkdown :source="local" />
+                <UiMarkdown :source="modelValue" />
             </div>
         </div>
     </div>
